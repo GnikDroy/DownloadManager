@@ -276,6 +276,7 @@ public class Download implements Runnable {
                         this.queueResponse.add("paused");
                         break;
                     case "stop":
+                        this.pause();
                         this.stop();
                         this.join_threads();
                         this.queueResponse.add("stopped");

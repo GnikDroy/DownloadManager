@@ -5,7 +5,6 @@
  */
 package downloadmanager;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.logging.Logger;
  * @author gnik
  */
 public class DownloadPool {
-    private List<DownloadThread> downloadThreads=new ArrayList<>();
+    private final List<DownloadThread> downloadThreads=new ArrayList<>();
  
     public boolean isValidUrl(String url){
         try {
@@ -28,10 +27,49 @@ public class DownloadPool {
            return false;
         }
     }
+    
+    public List<DownloadThread> getDownloadThreads(){
+        return downloadThreads;
+    }
+    
+    public DownloadThread getDownloadThreadObj(int downloadID){
+        for(DownloadThread dthread:downloadThreads){
+            if (dthread.download.get_metadata().downloadID==downloadID){
+                return dthread;
+            }
+        }
+        return null;
+    }
+    
+    public void stopDownload(DownloadThread downloadThread){
+        if (!downloadThread.thread.isAlive()){return;}
+        downloadThread.queueCommand.add("stop");
+        while(downloadThread.queueResponse.peek()!="stopped"){
+        }
+        downloadThread.queueResponse.poll();
+    }
+    
+    public void resumeDownload(DownloadThread downloadThread){
+        if (!downloadThread.thread.isAlive()){return;}
+        downloadThread.queueCommand.add("resume");
+        while(downloadThread.queueResponse.peek()!="resumed"){
+        }
+        downloadThread.queueResponse.poll();
+    }
+    
+    public void pauseDownload(DownloadThread downloadThread){
+        if (!downloadThread.thread.isAlive()){return;}
+        downloadThread.queueCommand.add("pause");
+        while(downloadThread.queueResponse.peek()!="paused"){
+        }
+        downloadThread.queueResponse.poll();
+    }
+ 
+ 
+    
     public void joinThreads(){
         for(DownloadThread downloadThread:downloadThreads){
             try {
-                System.out.println("threadjoined");
                 downloadThread.thread.join();
             } catch (InterruptedException ex) {
                 Logger.getLogger(DownloadPool.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,8 +90,7 @@ public class DownloadPool {
         Thread thread=new Thread(download);
         DownloadThread downloadThread=new DownloadThread(downloadMetadata,download,thread,queueCommand,queueResponse);
         downloadThreads.add(downloadThread);
-        thread.run();
-        System.out.println("thread run");
+        thread.start();
         
     } 
   
