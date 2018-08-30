@@ -15,6 +15,7 @@ import java.nio.file.Paths;
  */
 public class DownloadMetadata {
     public URL url;
+    public int downloadID;
     public String downloadPath="";
     public String filename;
     public int parts=8;
@@ -22,8 +23,9 @@ public class DownloadMetadata {
     public int timeout;
     public boolean accelerated=false;
     public DownloadStatus status=DownloadStatus.NEW;
-    public DownloadMetadata(String url) throws MalformedURLException{
+    public DownloadMetadata(String url,int ID) throws MalformedURLException{
         this.url=new URL(url);
+        downloadID=ID;
         this.filename=Paths.get(this.url.getPath()).getFileName().toString();
         
     }

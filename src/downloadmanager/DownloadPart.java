@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 
 
 public class DownloadPart implements Runnable{
-    private DownloadStatus status=DownloadStatus.STARTING;
-    private final String filename;
     private final DownloadPartMetadata metadata;
     private ConcurrentLinkedQueue queueCommand;
     private ConcurrentLinkedQueue queueResponse;
@@ -29,27 +27,34 @@ public class DownloadPart implements Runnable{
         this.queueCommand=queueCommand;
         this.queueResponse=queueResponse;
         this.metadata=metadata;
-        this.filename=metadata.download.filename+".part"+String.valueOf(metadata.partID);
-
+        
     }
-
+    public String toString(){
+        return "DownloadPartID:"+metadata.partID;
+    }
     public DownloadStatus getStatus() {
-        return status;
+        return metadata.status;
     }
 
+    public void pause(){
+        metadata.status=DownloadStatus.PAUSED;
+    }
+    public void resume(){
+        metadata.status=DownloadStatus.DOWNLOADING;
+    }
+    public void stop(){
+        metadata.status=DownloadStatus.STOPPED;
+    }
     public String getFilename() {
-        return filename;
+        return metadata.filename;
     }
     
     
     public boolean is_complete(){
         return ((metadata.completedBytes+metadata.part.getStartByte())==metadata.part.getEndByte());
     }
-    public void start(){
-
-    }
     public void download() throws IOException{
-        status=DownloadStatus.DOWNLOADING;
+        metadata.status=DownloadStatus.DOWNLOADING;
         URLConnection connection=metadata.download.url.openConnection();
         connection.setRequestProperty( "Range", "bytes="+String.valueOf(metadata.part.getStartByte()+metadata.completedBytes)+"-"+String.valueOf(metadata.part.getEndByte()) );
         connection.connect();
@@ -57,7 +62,7 @@ public class DownloadPart implements Runnable{
         BufferedInputStream inputStream=new BufferedInputStream(connection.getInputStream());
         boolean append=(metadata.completedBytes!=0);
         
-            BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(filename,append));
+            BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(metadata.filename,append));
             int byt;
             long completedBytes=metadata.completedBytes;
             while( ( byt=inputStream.read() ) != -1)
@@ -69,7 +74,7 @@ public class DownloadPart implements Runnable{
                 if(!queueCommand.isEmpty()){
                     if (queueCommand.poll().equals("pause")){
                         fileStream.close();
-                        status=DownloadStatus.PAUSED;
+                        pause();
                         queueResponse.add("paused");
                         return;
                     }
@@ -77,14 +82,14 @@ public class DownloadPart implements Runnable{
             }
         
         
-        status=DownloadStatus.COMPLETED;
+        metadata.status=DownloadStatus.COMPLETED;
     }
 
     public void tryDownload(){
         try {
             download();
         } catch (IOException ex) {
-            status=DownloadStatus.ERROR;
+            metadata.status=DownloadStatus.ERROR;
             metadata.retries++;
             Logger.getLogger(DownloadPart.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -94,11 +99,9 @@ public class DownloadPart implements Runnable{
         
         tryDownload();
         //Infinite loop until the downloadstatus is completed
-        while (status!=DownloadStatus.COMPLETED){
-            //Also break if retries has exceeded 100!!
-            if (this.metadata.retries>100){break;}
+        while (metadata.status!=DownloadStatus.COMPLETED){
             //Retry if there is any errors retry.
-            if (status==DownloadStatus.ERROR){
+            if (metadata.status==DownloadStatus.ERROR){
                 tryDownload();
             }
             try {
@@ -110,17 +113,19 @@ public class DownloadPart implements Runnable{
             if(!queueCommand.isEmpty()){
                 String command=(String)queueCommand.poll();
                 if(command.equals("stop")){
-                    status=DownloadStatus.STOPPED;
+                    stop();
                     queueResponse.add("stopped");
                     return;
                 
                 }
                 else if(command.equals("resume")){
+                    resume();
                     queueResponse.add("resumed");
                     tryDownload();
                 }
-        }
+            }
         }
     }
-
 }
+
+
