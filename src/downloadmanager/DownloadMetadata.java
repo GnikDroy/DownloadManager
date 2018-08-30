@@ -5,6 +5,7 @@
  */
 package downloadmanager;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -13,7 +14,7 @@ import java.nio.file.Paths;
  *
  * @author gnik
  */
-public class DownloadMetadata {
+public class DownloadMetadata  implements Serializable{
     public URL url;
     public int downloadID;
     public String downloadPath="";
@@ -23,6 +24,7 @@ public class DownloadMetadata {
     public int timeout;
     public boolean accelerated=false;
     public DownloadStatus status=DownloadStatus.NEW;
+    
     public DownloadMetadata(String url,int ID) throws MalformedURLException{
         this.url=new URL(url);
         downloadID=ID;

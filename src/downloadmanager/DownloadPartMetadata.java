@@ -5,11 +5,13 @@
  */
 package downloadmanager;
 
+import java.io.Serializable;
+
 /**
  *
  * @author gnik
  */
-public class DownloadPartMetadata{
+public class DownloadPartMetadata implements Serializable{
    public int partID;
    public DownloadStatus status=DownloadStatus.STARTING;
    public final String filename;
@@ -22,7 +24,7 @@ public class DownloadPartMetadata{
        this.download=download; 
        this.partID=partID;
        this.part=part;
-       this.filename=download.filename+".part"+String.valueOf(part);
+       this.filename=download.filename+".part"+String.valueOf(partID);
    }
    public void setCompletedBytes(long b){
        completedBytes=b;

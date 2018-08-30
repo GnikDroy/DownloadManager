@@ -5,11 +5,13 @@
  */
 package downloadmanager;
 
+import java.io.Serializable;
+
 /**
  *
  * @author gnik
  */
-public class Part {
+public class Part implements Serializable{
     long startByte;
     long endByte;
     
