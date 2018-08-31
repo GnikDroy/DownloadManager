@@ -8,6 +8,7 @@ package downloadmanager;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.io.*; 
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,10 +54,12 @@ public class DownloadPart implements Runnable{
     public boolean is_complete(){
         return ((metadata.completedBytes+metadata.part.getStartByte())==metadata.part.getEndByte());
     }
-    public void download() throws IOException{
+    public void download() throws IOException,SocketTimeoutException{
         metadata.status=DownloadStatus.DOWNLOADING;
         URLConnection connection=metadata.download.url.openConnection();
         connection.setRequestProperty( "Range", "bytes="+String.valueOf(metadata.part.getStartByte()+metadata.completedBytes)+"-"+String.valueOf(metadata.part.getEndByte()) );
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(metadata.download.timeout);
         connection.connect();
         
         BufferedInputStream inputStream=new BufferedInputStream(connection.getInputStream());
@@ -92,20 +95,20 @@ public class DownloadPart implements Runnable{
             metadata.status=DownloadStatus.ERROR;
             metadata.retries++;
             Logger.getLogger(DownloadPart.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
     @Override
     public void run() {
-        
+        if(DownloadStatus.COMPLETED==metadata.status){return;}
         tryDownload();
-        //Infinite loop until the downloadstatus is completed
+        //Infinite loop until the downloadstatus is completed 
         while (metadata.status!=DownloadStatus.COMPLETED){
             //Retry if there is any errors retry.
             if (metadata.status==DownloadStatus.ERROR){
                 tryDownload();
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200);
             } catch (InterruptedException ex) {
                 Logger.getLogger(DownloadPart.class.getName()).log(Level.SEVERE, null, ex);
             }

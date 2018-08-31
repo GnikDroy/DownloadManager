@@ -28,6 +28,8 @@ public class Part implements Serializable{
         return endByte;
     }
     
-    
+    public String toString(){
+        return String.valueOf(startByte)+"-"+String.valueOf(endByte);
+    }
     
 }

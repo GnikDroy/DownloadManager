@@ -111,7 +111,7 @@ public class Download implements Runnable {
             Part part = new Part(start, (int) Math.round(size * (cnt + 1)));
             parts.add(part);
             start = (int) Math.round(size * (cnt + 1)) + 1;
-
+            
         }
         return parts;
     }
@@ -242,6 +242,8 @@ public class Download implements Runnable {
             if (outFile != null) {
                 outFile.close();
             }
+            
+            //This deletes the temporary Files.
             for (DownloadPartThread downloadThread : downloadPartThreads) {
                 DownloadPart downloadPart = downloadThread.downloadPart;
                 Files.deleteIfExists(Paths.get(downloadPart.getFilename()));
@@ -258,6 +260,7 @@ public class Download implements Runnable {
 
     @Override
     public void run() {
+        if (metadata.status==DownloadStatus.COMPLETED){return;}
         this.initialize();
         this.accelerated_download();
         

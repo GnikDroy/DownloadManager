@@ -9,16 +9,45 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 /**
  *
  * @author gnik
  */
 public class DownloadPool {
-    private final List<DownloadThread> downloadThreads=new ArrayList<>();
+    private final ObservableList<DownloadThread> downloadThreads=FXCollections.observableArrayList();
  
+    public DownloadPool(){
+        
+    }
+    
+    public DownloadPool(DownloadsSaves saves){
+        load(saves);
+    }
+    
+    public void load(DownloadsSaves saves){
+        for(Map<DownloadMetadata,List<DownloadPartMetadata>> save:saves.downloads)
+        {
+            for(DownloadMetadata downloadMetadata:save.keySet()){
+                ConcurrentLinkedQueue queueCommand=new ConcurrentLinkedQueue();
+                ConcurrentLinkedQueue queueResponse=new ConcurrentLinkedQueue();
+                Download download=new Download(downloadMetadata,queueCommand,queueResponse);
+                download.load(save.get(downloadMetadata));
+                Thread thread=new Thread(download);
+                DownloadThread downloadThread=new DownloadThread(downloadMetadata,download,thread,queueCommand,queueResponse);
+                downloadThreads.add(downloadThread);
+                thread.start();
+        
+            }
+        }
+    }
+    
     public boolean isValidUrl(String url){
         try {
             new URL(url);
@@ -28,13 +57,14 @@ public class DownloadPool {
         }
     }
     
-    public List<DownloadThread> getDownloadThreads(){
+    public ObservableList<DownloadThread> getDownloadThreads(){
         return downloadThreads;
     }
     
+
     public DownloadThread getDownloadThreadObj(int downloadID){
         for(DownloadThread dthread:downloadThreads){
-            if (dthread.download.get_metadata().downloadID==downloadID){
+            if (dthread.download.getValue().get_metadata().downloadID==downloadID){
                 return dthread;
             }
         }
@@ -65,8 +95,23 @@ public class DownloadPool {
         downloadThread.queueResponse.poll();
     }
  
- 
+    public void pauseAll(){
+        for(DownloadThread downloadThread:downloadThreads){
+            pauseDownload(downloadThread);
+        }
+    }
+
+    public void resumeAll(){
+        for(DownloadThread downloadThread:downloadThreads){
+            resumeDownload(downloadThread);
+        }
+    }
     
+    public void stopAll(){
+        for(DownloadThread downloadThread:downloadThreads){
+            stopDownload(downloadThread);
+        }
+    }
     public void joinThreads(){
         for(DownloadThread downloadThread:downloadThreads){
             try {
@@ -98,20 +143,18 @@ public class DownloadPool {
 }
 
 class DownloadThread{
-    public DownloadMetadata downloadMetadata;
-    public Download download;
+    public SimpleObjectProperty<DownloadMetadata> downloadMetadata;
+    public SimpleObjectProperty<Download> download;
     public Thread thread;
     public ConcurrentLinkedQueue queueCommand;
     public ConcurrentLinkedQueue queueResponse;
 
     public DownloadThread(DownloadMetadata downloadMetadata, Download download, Thread thread, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
-        this.downloadMetadata = downloadMetadata;
-        this.download = download;
+        this.downloadMetadata = new SimpleObjectProperty<>(downloadMetadata);
+        this.download = new SimpleObjectProperty<>(download);
         this.thread = thread;
         this.queueCommand = queueCommand;
         this.queueResponse = queueResponse;
     }
-
-
 
 }

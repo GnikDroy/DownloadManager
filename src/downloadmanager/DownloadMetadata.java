@@ -21,7 +21,7 @@ public class DownloadMetadata  implements Serializable{
     public String filename;
     public int parts=8;
     public long size;
-    public int timeout;
+    public int timeout=10000;
     public boolean accelerated=false;
     public DownloadStatus status=DownloadStatus.NEW;
     
@@ -31,4 +31,25 @@ public class DownloadMetadata  implements Serializable{
         this.filename=Paths.get(this.url.getPath()).getFileName().toString();
         
     }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public int getDownloadID() {
+        return downloadID;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public DownloadStatus getStatus() {
+        return status;
+    }
+    
 }
