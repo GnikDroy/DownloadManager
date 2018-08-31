@@ -47,6 +47,15 @@ public class DownloadManager extends Application {
     Stage window;
     TableView<DownloadThread> table;
 
+    Label urlLabel = new Label("URL:");
+    TextField urlInput = new TextField();
+
+    Button newDownload = new Button("Download");
+    Button pauseButton = new Button("Pause");
+    Button resumeButton = new Button("Resume");
+    Button stopButton = new Button("Stop");
+    Button removeButton = new Button("Remove");
+
     /**
      * @param args the command line arguments
      * @throws java.io.IOException
@@ -64,10 +73,7 @@ public class DownloadManager extends Application {
         downloadPool.save();
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        window = stage;
-        window.setTitle("Download Manager");
+    public void setTable() {
         TableColumn<DownloadThread, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setMinWidth(50);
         idColumn.setCellValueFactory((TableColumn.CellDataFeatures<DownloadThread, Integer> download) -> download.getValue().getDownloadMetadata().getDownloadIDProperty());
@@ -91,17 +97,14 @@ public class DownloadManager extends Application {
         TableColumn<DownloadThread, String> acceleratedColumn = new TableColumn<>("Accelerated");
         acceleratedColumn.setMinWidth(50);
         acceleratedColumn.setCellValueFactory((TableColumn.CellDataFeatures<DownloadThread, String> download) -> download.getValue().getDownloadMetadata().getAcceleratedProperty());
-
         table = new TableView();
+
         table.setItems(downloadPool.getDownloadThreads());
         table.getColumns().addAll(idColumn, urlColumn, statusColumn, filenameColumn, sizeColumn, acceleratedColumn);
 
-        Label urlLabel = new Label("URL:");
+    }
 
-        TextField urlInput = new TextField();
-        urlInput.setMinWidth(400);
-
-        Button newDownload = new Button("Download");
+    public void setButtons() {
         newDownload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent eh) {
@@ -110,7 +113,6 @@ public class DownloadManager extends Application {
             }
         });
 
-        Button pauseButton = new Button("Pause");
         pauseButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent eh) {
@@ -118,47 +120,51 @@ public class DownloadManager extends Application {
             }
         });
 
-        Button resumeButton = new Button("Resume");
         resumeButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent eh) {
                 downloadPool.resumeDownload(table.getSelectionModel().getSelectedItem());
             }
         });
-        
-        
-        Button stopButton = new Button("Stop");
+
         stopButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent eh) {
                 downloadPool.stopDownload(table.getSelectionModel().getSelectedItem());
             }
         });
-        
-        Button removeButton = new Button("Remove");
+
         removeButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent eh) {
                 downloadPool.removeDownload(table.getSelectionModel().getSelectedItem());
             }
         });
-        
+
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        window = stage;
+        window.setTitle("Download Manager");
+        setTable();
+        setButtons();
+        urlInput.setMinWidth(400);
+
         HBox hBox = new HBox();
         hBox.getChildren().addAll(urlLabel, urlInput, newDownload);
         hBox.setSpacing(10);
-        
-        HBox buttonList=new HBox();
-        buttonList.getChildren().addAll(pauseButton,stopButton,resumeButton,removeButton);
+
+        HBox buttonList = new HBox();
+        buttonList.getChildren().addAll(pauseButton, stopButton, resumeButton, removeButton);
         buttonList.setSpacing(10);
 
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(hBox,buttonList, table);
+        vBox.getChildren().addAll(hBox, buttonList, table);
         Scene scene = new Scene(vBox);
         scene.getStylesheets().add("/resources/modena_dark.css");
         window.setScene(scene);
         window.show();
     }
 
-
 }
-

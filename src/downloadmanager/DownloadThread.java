@@ -1,4 +1,10 @@
-/* 
+package downloadmanager;
+
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.beans.property.SimpleObjectProperty;
+
+/*
  * The MIT License
  *
  * Copyright 2018 gnik.
@@ -21,24 +27,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package downloadmanager;
-
-import java.util.List;
 
 /**
  *
  * @author gnik
  */
-public class DownloadState {
-    public DownloadMetadata downloadMetadata;
-    public List<DownloadPartMetadata> downloadPartMetadata;
-    public DownloadState(){
-        
-    }
-    public DownloadState(DownloadMetadata downloadMetadata, List<DownloadPartMetadata> downloadPartMetadata) {
-        this.downloadMetadata = downloadMetadata;
-        this.downloadPartMetadata = downloadPartMetadata;
-    }
+public class DownloadThread {
 
-        
+    public SimpleObjectProperty<DownloadMetadata> downloadMetadata;
+    public SimpleObjectProperty<Download> download;
+    public Thread thread;
+    public ConcurrentLinkedQueue queueCommand;
+    public ConcurrentLinkedQueue queueResponse;
+
+    public DownloadThread(DownloadMetadata downloadMetadata, Download download, Thread thread, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
+        this.downloadMetadata = new SimpleObjectProperty<>(downloadMetadata);
+        this.download = new SimpleObjectProperty<>(download);
+        this.thread = thread;
+        this.queueCommand = queueCommand;
+        this.queueResponse = queueResponse;
+    }
+    
+    
+    public Download getDownload(){
+        return download.getValue();
+    }
+    public DownloadMetadata getDownloadMetadata() {
+        return downloadMetadata.getValue();
+    }
 }

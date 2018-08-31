@@ -331,38 +331,3 @@ public class Download implements Runnable {
 
 }
 
-class DownloadPartThread {
-
-    public Thread thread;
-    public SimpleObjectProperty<DownloadPart> downloadPart;
-    public ConcurrentLinkedQueue queueCommand;
-    public ConcurrentLinkedQueue queueResponse;
-    public SimpleObjectProperty<DownloadPartMetadata> downloadPartMetadata;
-
-    public DownloadPartThread(DownloadPart downloadPart, DownloadPartMetadata downloadPartMetadata, Thread thread, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
-        this.thread = thread;
-        this.downloadPart = new SimpleObjectProperty<>(downloadPart);
-        this.downloadPartMetadata = new SimpleObjectProperty<>(downloadPartMetadata);
-        this.queueCommand = queueCommand;
-        this.queueResponse = queueResponse;
-    }
-
-    public DownloadPartThread(DownloadPart downloadPart, DownloadPartMetadata downloadPartMetadata, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
-        this.downloadPart = new SimpleObjectProperty<>(downloadPart);
-        this.downloadPartMetadata = new SimpleObjectProperty<>(downloadPartMetadata);
-        this.queueCommand = queueCommand;
-        this.queueResponse = queueResponse;
-        
-    }
-    
-    public DownloadPart getDownloadPart(){
-        return downloadPart.getValue();
-    }
-    
-    public void setDownloadPart(DownloadPart t){
-        downloadPart.setValue(t);
-    }
-    public DownloadPartMetadata getDownloadPartMetadata(){
-        return downloadPartMetadata.getValue();
-    }
-}

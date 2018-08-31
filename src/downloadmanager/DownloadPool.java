@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -184,27 +183,3 @@ public class DownloadPool {
 
 }
 
-class DownloadThread {
-
-    public SimpleObjectProperty<DownloadMetadata> downloadMetadata;
-    public SimpleObjectProperty<Download> download;
-    public Thread thread;
-    public ConcurrentLinkedQueue queueCommand;
-    public ConcurrentLinkedQueue queueResponse;
-
-    public DownloadThread(DownloadMetadata downloadMetadata, Download download, Thread thread, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
-        this.downloadMetadata = new SimpleObjectProperty<>(downloadMetadata);
-        this.download = new SimpleObjectProperty<>(download);
-        this.thread = thread;
-        this.queueCommand = queueCommand;
-        this.queueResponse = queueResponse;
-    }
-    
-    
-    public Download getDownload(){
-        return download.getValue();
-    }
-    public DownloadMetadata getDownloadMetadata() {
-        return downloadMetadata.getValue();
-    }
-}
