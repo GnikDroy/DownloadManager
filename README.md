@@ -5,6 +5,10 @@ This is a simple download manager written in java. It downloads parts of a file 
 It also allows you to pause/resume downloads. Similarly, downloads are persistence. The downloads objects are serialized to disk.
 The main GUI is made by the JavaFX framework in the Observer/Observable model for easy extension.
 
+
+![DownloadManager](https://raw.githubusercontent.com/GnikDroy/DownloadManager/master/screenshots/screenshot.png)
+
+
 # Building 
 
 The project uses ANT build scripts (Netbeans) to build. If you have NETBEANS simply import the project. If you donot, go [here](https://ant.apache.org/) and get yourself a copy of ANT.
