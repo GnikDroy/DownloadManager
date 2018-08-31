@@ -5,28 +5,52 @@
  */
 package downloadmanager;
 
-import java.io.Serializable;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  *
  * @author gnik
  */
-public class DownloadPartMetadata implements Serializable{
-   public int partID;
-   public DownloadStatus status=DownloadStatus.STARTING;
+public class DownloadPartMetadata{
+   public SimpleObjectProperty<Integer> partID;
+   public SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.STARTING);
    public final String filename;
    public DownloadMetadata download;
-   public Part part;
-   public long completedBytes=0;
+   public SimpleObjectProperty<Part> part;
+   public SimpleObjectProperty<Long> completedBytes=new SimpleObjectProperty<>(0L);
    public int retries=0;
 
    public DownloadPartMetadata(DownloadMetadata download,int partID,Part part){
        this.download=download; 
-       this.partID=partID;
-       this.part=part;
-       this.filename=download.filename+".part"+String.valueOf(partID);
+       this.partID=new SimpleObjectProperty<>(partID);
+       this.part=new SimpleObjectProperty<>(part);
+       this.filename=download.getFilename()+".part"+String.valueOf(partID);
    }
+
+    public Part getPart(){
+        return part.getValue();
+    }
+    public void setPart(Part p){
+        part.setValue(p);
+    }
+    public SimpleObjectProperty<Part> getPartProperty(){
+        return part;
+    }
+    
+    public SimpleObjectProperty<DownloadStatus> getStatusProperty() {
+        return status;
+    }
+    public DownloadStatus getStatus(){
+        return status.getValue();
+    }
+    public void setStatus(DownloadStatus s) {
+        status.setValue(s);
+    }
+   
    public void setCompletedBytes(long b){
-       completedBytes=b;
+       completedBytes.setValue(b);
+   }
+   public long getCompletedBytes(){
+       return completedBytes.getValue();
    }
 }

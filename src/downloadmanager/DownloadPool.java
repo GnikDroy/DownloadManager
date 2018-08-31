@@ -7,7 +7,6 @@ package downloadmanager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -64,7 +63,7 @@ public class DownloadPool {
 
     public DownloadThread getDownloadThreadObj(int downloadID){
         for(DownloadThread dthread:downloadThreads){
-            if (dthread.download.getValue().get_metadata().downloadID==downloadID){
+            if (dthread.download.getValue().get_metadata().getDownloadID()==downloadID){
                 return dthread;
             }
         }
@@ -156,5 +155,7 @@ class DownloadThread{
         this.queueCommand = queueCommand;
         this.queueResponse = queueResponse;
     }
-
+    public DownloadMetadata getDownloadMetadata(){
+        return downloadMetadata.getValue();
+    }
 }
