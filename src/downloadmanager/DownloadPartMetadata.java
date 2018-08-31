@@ -5,7 +5,6 @@
  */
 package downloadmanager;
 
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
@@ -16,10 +15,7 @@ public class DownloadPartMetadata{
    public SimpleObjectProperty<Integer> partID;
    public SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.STARTING);
    public final String filename;
-   
-   @XStreamOmitField
    public DownloadMetadata download;
-   
    public SimpleObjectProperty<Part> part;
    public SimpleObjectProperty<Long> completedBytes=new SimpleObjectProperty<>(0L);
    public int retries=0;
@@ -41,10 +37,6 @@ public class DownloadPartMetadata{
         return part;
     }
     
-    public void setDownloadMetadata(DownloadMetadata downloadMetadata){
-        download=downloadMetadata;
-    }
-    
     public SimpleObjectProperty<DownloadStatus> getStatusProperty() {
         return status;
     }
@@ -58,7 +50,6 @@ public class DownloadPartMetadata{
    public void setCompletedBytes(long b){
        completedBytes.setValue(b);
    }
-      
    public long getCompletedBytes(){
        return completedBytes.getValue();
    }

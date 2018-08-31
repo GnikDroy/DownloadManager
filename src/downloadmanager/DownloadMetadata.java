@@ -27,9 +27,8 @@ public class DownloadMetadata{
     public DownloadMetadata(String url,int ID) throws MalformedURLException{
         this.url=new SimpleObjectProperty<>(new URL(url));
         this.downloadID=new SimpleObjectProperty(ID);
-        String file=String.valueOf(ID)+"_"+Paths.get(this.getUrl().getPath()).getFileName().toString();
-        if (file==null){file=String.valueOf(ID);}
-        this.filename=new SimpleObjectProperty<>(file);
+        this.filename=new SimpleObjectProperty<>(Paths.get(this.getUrl().getPath()).getFileName().toString());
+        
     }
 
     public URL getUrl() {
@@ -39,6 +38,7 @@ public class DownloadMetadata{
     public SimpleObjectProperty getUrlProperty() {
         return url;
     }
+    
 
     public Integer getDownloadID() {
         return downloadID.getValue();

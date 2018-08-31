@@ -40,7 +40,7 @@ public class Download implements Runnable {
         this.queueResponse = queueResponse;
         load(downloadPartMetadatas);
     }
-    
+
     @Override
     public String toString() {
         return "DownloadID:" + metadata.getValue().getDownloadID();
@@ -67,19 +67,16 @@ public class Download implements Runnable {
         conn.setRequestMethod("HEAD");
         get_metadata().setSize(conn.getContentLengthLong());
         String ranges = conn.getHeaderField("Accept-Ranges");
-        if (ranges!=null && !ranges.equals("none")) {
+        if (!ranges.equals("none")) {
             get_metadata().setAccelerated(true);
-            get_metadata().setStatus(DownloadStatus.STARTING) ;
         }
-        get_metadata().setStatus(DownloadStatus.ERROR);
-        
+        get_metadata().setStatus(DownloadStatus.STARTING) ;
     }
 
     public void load(List<DownloadPartMetadata> downloadPartMetadatas) {
         for (DownloadPartMetadata downloadPartMetadata : downloadPartMetadatas) {
             ConcurrentLinkedQueue queueCom = new ConcurrentLinkedQueue();
             ConcurrentLinkedQueue queueRes = new ConcurrentLinkedQueue();
-            downloadPartMetadata.setDownloadMetadata(get_metadata());
             DownloadPart downloadPart = new DownloadPart(downloadPartMetadata, queueCom, queueRes);
             downloadPartThreads.add(new DownloadPartThread(downloadPart, downloadPartMetadata, queueCom, queueRes));
         }
@@ -101,13 +98,12 @@ public class Download implements Runnable {
         if (downloadPartThreads.isEmpty()) {
             try {
                 get_headers();
-
+                create_downloadPartThreads();
             } catch (IOException ex) {
                 Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
                 get_metadata().setStatus(DownloadStatus.ERROR);
                 return;
             }
-            create_downloadPartThreads();
            
         }
     }
@@ -142,7 +138,7 @@ public class Download implements Runnable {
         boolean alljoined = true;
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             Thread th = downloadThread.thread;
-            if (th!=null && !th.isAlive()) {
+            if (!th.isAlive()) {
                 try {
                     th.join();
                 } catch (InterruptedException ex) {
