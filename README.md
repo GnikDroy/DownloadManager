@@ -1,6 +1,6 @@
 # DownloadManager
 
-![codefactor](https://www.codefactor.io/repository/github/gnikdroy/downloadmanager/badge)
+![codefactor](https://www.codefactor.io/repository/github/gnikdroy/downloadmanager/badge)  [![Maintainability](https://api.codeclimate.com/v1/badges/98e2ca2a1eaedcd7934d/maintainability)](https://codeclimate.com/github/GnikDroy/DownloadManager/maintainability)
 
 DownloadManager is a simple file download manager written in java. It downloads parts of a file in different threads and combines them later for efficient download.
 
