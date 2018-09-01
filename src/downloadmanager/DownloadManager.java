@@ -43,7 +43,7 @@ import javafx.stage.Stage;
  */
 public class DownloadManager extends Application {
 
-    DownloadPool downloadPool = new DownloadPool();
+    DownloadPool downloadPool = new DownloadPool().load();
     Stage window;
     TableView<DownloadThread> table;
 
@@ -62,7 +62,6 @@ public class DownloadManager extends Application {
      * @throws java.lang.InterruptedException
      */
     public static void main(String args[]) throws IOException, InterruptedException {
-
         launch(args);
     }
 

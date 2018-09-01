@@ -38,12 +38,12 @@ import java.util.logging.Logger;
  *
  * @author gnik
  */
-public class DownloadsSaves {
+public class DownloadSaves {
 
     private List<DownloadState> downloads = new ArrayList<>();
     private final String saveFilename = "history.dat";
 
-    public DownloadsSaves() {
+    public DownloadSaves() {
 
     }
 
@@ -68,7 +68,7 @@ public class DownloadsSaves {
         try {
             file = new FileWriter(saveFilename);
         } catch (IOException ex) {
-            Logger.getLogger(DownloadsSaves.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
             if (file != null) {
@@ -76,7 +76,7 @@ public class DownloadsSaves {
                 file.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(DownloadsSaves.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -85,7 +85,7 @@ public class DownloadsSaves {
         try {
             reader = new FileReader(saveFilename);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(DownloadsSaves.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         XStream xstream = new XStream(new StaxDriver());

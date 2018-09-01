@@ -39,27 +39,26 @@ import javafx.collections.ObservableList;
 public class DownloadPool {
 
     private final ObservableList<DownloadThread> downloadThreads = FXCollections.observableArrayList();
-    DownloadsSaves downloadssaves=new DownloadsSaves();
+    DownloadSaves downloadSaves=new DownloadSaves();
     
     public DownloadPool() {
-        downloadssaves.load();
-        if(downloadssaves.getDownloads()==null){return;}
-        load(downloadssaves);
+        downloadSaves.load();
     }
     
     
     public void save(){
-        downloadssaves.clear();
+        downloadSaves.clear();
         for (DownloadThread downloadThread:downloadThreads){
             DownloadState download;
             download=new DownloadState(downloadThread.getDownloadMetadata(),downloadThread.download.getValue().getPartMetadatas());
-            downloadssaves.addDownload(download);
+            downloadSaves.addDownload(download);
         }
-        downloadssaves.save();
+        downloadSaves.save();
     }
     
-    public void load(DownloadsSaves saves) {
-        for (DownloadState downloadState : saves.getDownloads()) {
+    public DownloadPool load() {
+        if(downloadSaves.getDownloads()==null){return this;}
+        for (DownloadState downloadState : downloadSaves.getDownloads()) {
             
                 DownloadMetadata downloadMetadata=downloadState.downloadMetadata;
                 List<DownloadPartMetadata> downloadPartMetadata=downloadState.downloadPartMetadata;
@@ -74,8 +73,10 @@ public class DownloadPool {
 
             
         }
+        return this;
     }
 
+    
     public boolean isValidUrl(String url) {
         try {
             URL test=new URL(url);
@@ -84,35 +85,46 @@ public class DownloadPool {
             return false;
         }
     }
-
+    
     public ObservableList<DownloadThread> getDownloadThreads() {
         return downloadThreads;
     }
 
 
+    private void waitUntilCommand(DownloadThread downloadThread,String command){
+        while (true) {
+            if(!downloadThread.queueResponse.isEmpty()){
+                 if(downloadThread.queueResponse.peek().equals(command)){
+                     downloadThread.queueResponse.poll();
+                     break;
+                 }
+            }
+        }
+    }
     public void stopDownload(DownloadThread downloadThread) {
         if (!downloadThread.thread.isAlive()) {
             return;
         }
         downloadThread.queueCommand.add("stop");
-        while (downloadThread.queueResponse.peek() != "stopped") {
-        }
-        downloadThread.queueResponse.poll();
-        try {
-            downloadThread.thread.join();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DownloadPool.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        waitUntilCommand(downloadThread,"stopped");
+        joinThread(downloadThread);
+
     }
 
+    
+    public void pauseDownload(DownloadThread downloadThread) {
+        if (!downloadThread.thread.isAlive()) {
+            return;
+        }
+        downloadThread.queueCommand.add("pause");
+        waitUntilCommand(downloadThread,"paused");
+    }
     public void resumeDownload(DownloadThread downloadThread) {
         if (!downloadThread.thread.isAlive()) {
             return;
         }
         downloadThread.queueCommand.add("resume");
-        while (downloadThread.queueResponse.peek() != "resumed") {
-        }
-        downloadThread.queueResponse.poll();
+        waitUntilCommand(downloadThread,"resumed");
     }
     
     public void removeDownload(DownloadThread downloadThread){
@@ -125,16 +137,6 @@ public class DownloadPool {
             }
         }
         downloadThreads.remove(downloadThread);
-    }
-    
-    public void pauseDownload(DownloadThread downloadThread) {
-        if (!downloadThread.thread.isAlive()) {
-            return;
-        }
-        downloadThread.queueCommand.add("pause");
-        while (downloadThread.queueResponse.peek() != "paused") {
-        }
-        downloadThread.queueResponse.poll();
     }
 
     public void pauseAll() {
@@ -154,14 +156,16 @@ public class DownloadPool {
             stopDownload(downloadThread);
         }
     }
-
-    public void joinThreads() {
-        for (DownloadThread downloadThread : downloadThreads) {
-            try {
+    public void joinThread(DownloadThread downloadThread){
+        try {
                 downloadThread.thread.join();
             } catch (InterruptedException ex) {
                 Logger.getLogger(DownloadPool.class.getName()).log(Level.SEVERE, null, ex);
             }
+    }
+    public void joinThreads() {
+        for (DownloadThread downloadThread : downloadThreads) {
+            joinThread(downloadThread);
         }
     }
     public void newDownload(String url) {
