@@ -25,10 +25,13 @@ package downloadmanager;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -63,32 +66,35 @@ public class DownloadSaves {
     public void save() {
         XStream xstream = new XStream(new StaxDriver());
         String object = xstream.toXML(downloads);
+        try (OutputStreamWriter file = new OutputStreamWriter(new FileOutputStream(saveFilename), StandardCharsets.UTF_8)) {
+            file.write(object);
+        } catch (IOException ex) {
+            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        FileWriter file = null;
-        try {
-            file = new FileWriter(saveFilename);
+    }
+
+    public void createNewFile() {
+        String object="<?xml version=\"1.0\" ?><list></list>";
+        try (OutputStreamWriter file = new OutputStreamWriter(new FileOutputStream(saveFilename), StandardCharsets.UTF_8)) {
+            file.write(object);
         } catch (IOException ex) {
             Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-            if (file != null) {
-                file.write(object);
-                file.close();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }
 
     public void load() {
-        FileReader reader = null;
-        try {
-            reader = new FileReader(saveFilename);
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(saveFilename), StandardCharsets.UTF_8)) {
+
+            XStream xstream = new XStream(new StaxDriver());
+            downloads = (List<DownloadState>) xstream.fromXML(reader);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
+            createNewFile();
+        } catch (IOException ex) {
+            Logger.getLogger(DownloadSaves.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        XStream xstream = new XStream(new StaxDriver());
-        downloads = (List<DownloadState>) xstream.fromXML(reader);
+
     }
 }
