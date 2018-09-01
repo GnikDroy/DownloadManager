@@ -33,20 +33,22 @@ import javafx.beans.property.SimpleObjectProperty;
 public class DownloadPartMetadata{
    public SimpleObjectProperty<Integer> partID;
    public SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.STARTING);
-   public final String filename;
+   public String filename;
    
+   //This field will be included multiple time if it is included
    @XStreamOmitField
-   public DownloadMetadata download;
+   public DownloadMetadata downloadMetadata;
    
    public SimpleObjectProperty<Part> part;
    public SimpleObjectProperty<Long> completedBytes=new SimpleObjectProperty<>(0L);
-   public int retries=0;
+   public SimpleObjectProperty<Integer> retries=new SimpleObjectProperty<>(0);
 
-   public DownloadPartMetadata(DownloadMetadata download,int partID,Part part){
-       this.download=download; 
+
+    public DownloadPartMetadata(DownloadMetadata downloadMetadata,int partID,Part part){
+       this.downloadMetadata=downloadMetadata; 
        this.partID=new SimpleObjectProperty<>(partID);
        this.part=new SimpleObjectProperty<>(part);
-       this.filename=download.getFilename()+".part"+String.valueOf(partID);
+       this.filename=downloadMetadata.getFilename()+".part"+String.valueOf(partID);
    }
 
     public Part getPart(){
@@ -60,7 +62,7 @@ public class DownloadPartMetadata{
     }
     
     public void setDownloadMetadata(DownloadMetadata downloadMetadata){
-        download=downloadMetadata;
+        this.downloadMetadata=downloadMetadata;
     }
     
     public SimpleObjectProperty<DownloadStatus> getStatusProperty() {
@@ -80,4 +82,33 @@ public class DownloadPartMetadata{
    public long getCompletedBytes(){
        return completedBytes.getValue();
    }
+   
+   public SimpleObjectProperty<Long> getCompletedBytesProperty(){
+       return completedBytes;
+   }
+   
+   public void setRetries(int r){
+       retries.setValue(r);
+   }
+   
+   public int getRetries(){
+       return retries.getValue();
+   }
+   
+   public void incrementRetries(){
+       retries.setValue(retries.getValue()+1);
+   }
+   public SimpleObjectProperty<Integer> getRetriesProperty(){
+       return retries;
+   }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+   
+   
 }

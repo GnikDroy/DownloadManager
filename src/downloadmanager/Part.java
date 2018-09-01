@@ -23,13 +23,12 @@
  */
 package downloadmanager;
 
-import java.io.Serializable;
 
 /**
  *
  * @author gnik
  */
-public class Part implements Serializable{
+public class Part{
     long startByte;
     long endByte;
     
@@ -45,7 +44,16 @@ public class Part implements Serializable{
     public long getEndByte() {
         return endByte;
     }
+
+    public void setStartByte(long startByte) {
+        this.startByte = startByte;
+    }
+
+    public void setEndByte(long endByte) {
+        this.endByte = endByte;
+    }
     
+    @Override
     public String toString(){
         return String.valueOf(startByte)+"-"+String.valueOf(endByte);
     }

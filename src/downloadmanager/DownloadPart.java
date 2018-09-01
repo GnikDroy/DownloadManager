@@ -53,6 +53,7 @@ public class DownloadPart implements Runnable {
         return metadata.getValue();
     }
 
+    @Override
     public String toString() {
         return "DownloadPartID:" + getMetadata().partID;
     }
@@ -62,63 +63,93 @@ public class DownloadPart implements Runnable {
     }
 
     public void pause() {
-        getMetadata().setStatus(DownloadStatus.PAUSED);
+        if (getMetadata().getStatus() == DownloadStatus.DOWNLOADING) {
+            getMetadata().setStatus(DownloadStatus.PAUSED);
+        }
     }
 
     public void resume() {
-        getMetadata().setStatus(DownloadStatus.DOWNLOADING);
+        if (getMetadata().getStatus() == DownloadStatus.PAUSED) {
+            getMetadata().setStatus(DownloadStatus.DOWNLOADING);
+        }
     }
 
     public void stop() {
-        getMetadata().setStatus(DownloadStatus.STOPPED);
+        if (getMetadata().getStatus() == DownloadStatus.PAUSED || getMetadata().getStatus() == DownloadStatus.PAUSED) {
+            getMetadata().setStatus(DownloadStatus.STOPPED);
+        }
     }
 
     public String getFilename() {
-        return getMetadata().filename;
+        return getMetadata().getFilename();
     }
 
-    public boolean is_complete() {
+    public boolean isComplete() {
         return ((getMetadata().getCompletedBytes() + getMetadata().getPart().getStartByte()) == getMetadata().getPart().getEndByte());
     }
 
-    public void download() throws IOException, SocketTimeoutException {
-        getMetadata().setStatus(DownloadStatus.DOWNLOADING);
-        URLConnection connection = getMetadata().download.getUrl().openConnection();
+    private BufferedInputStream getConnectionStream() throws IOException {
+        //Setting up the connection.
+        URLConnection connection = getMetadata().downloadMetadata.getUrl().openConnection();
         connection.setRequestProperty("Range", "bytes=" + String.valueOf(getMetadata().getPart().getStartByte() + getMetadata().getCompletedBytes()) + "-" + String.valueOf(getMetadata().getPart().getEndByte()));
         connection.setConnectTimeout(5000);
-        connection.setReadTimeout(getMetadata().download.timeout);
+        connection.setReadTimeout(getMetadata().downloadMetadata.timeout);
         connection.connect();
 
         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
-        boolean append = (getMetadata().getCompletedBytes() != 0);
+        return inputStream;
+    }
 
-        BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(getMetadata().filename, append));
+    private boolean copyToStream(BufferedInputStream inputStream, BufferedOutputStream fileStream) throws IOException {
         int byt;
         long completedBytes = getMetadata().getCompletedBytes();
+
         while ((byt = inputStream.read()) != -1) {
             fileStream.write(byt);
             completedBytes++;
             getMetadata().setCompletedBytes(completedBytes);
 
             if (!queueCommand.isEmpty()) {
-                if (queueCommand.poll().equals("pause")) {
-                    fileStream.close();
+                if (queueCommand.peek().equals("pause")) {
                     pause();
+                    queueCommand.poll();
                     queueResponse.add("paused");
-                    return;
+                    return false;
+                } else if (queueCommand.peek().equals("stop")) {
+                    stop();
+                    //I am not adding a poll here because it will stop execution in run thread as well.
+                    queueResponse.add("stopped");
+                    return false;
                 }
             }
         }
+        return true;
 
-        getMetadata().setStatus(DownloadStatus.COMPLETED);
     }
 
-    public void tryDownload() {
+    public void download() throws IOException, SocketTimeoutException {
+        getMetadata().setStatus(DownloadStatus.DOWNLOADING);
+        boolean append = (getMetadata().getCompletedBytes() != 0);
+
+        BufferedInputStream inputStream = getConnectionStream();
+        BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(getMetadata().filename, append));
+        try {
+            if (copyToStream(inputStream, fileStream)) {
+                getMetadata().setStatus(DownloadStatus.COMPLETED);
+            }
+        } finally {
+            inputStream.close();
+            fileStream.close();
+        }
+
+    }
+
+    public void safeDownload() {
         try {
             download();
         } catch (IOException ex) {
             getMetadata().setStatus(DownloadStatus.ERROR);
-            getMetadata().retries++;
+            getMetadata().incrementRetries();
             Logger.getLogger(DownloadPart.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -128,12 +159,12 @@ public class DownloadPart implements Runnable {
         if (DownloadStatus.COMPLETED == getMetadata().getStatus()) {
             return;
         }
-        tryDownload();
+        safeDownload();
         //Infinite loop until the downloadstatus is completed 
         while (getMetadata().getStatus() != DownloadStatus.COMPLETED) {
-            //Retry if there is any errors retry.
+            //Retry if there is any errors.
             if (getMetadata().getStatus() == DownloadStatus.ERROR) {
-                tryDownload();
+                safeDownload();
             }
             try {
                 Thread.sleep(200);
@@ -143,16 +174,20 @@ public class DownloadPart implements Runnable {
 
             if (!queueCommand.isEmpty()) {
                 String command = (String) queueCommand.poll();
-                if (command.equals("stop")) {
-                    stop();
-                    queueResponse.add("stopped");
-                    return;
-
-                } else if (command.equals("resume")) {
-                    resume();
-                    queueResponse.add("resumed");
-                    tryDownload();
+                switch (command) {
+                    case "stop":
+                        stop();
+                        queueResponse.add("stopped");
+                        return;
+                    case "resume":
+                        resume();
+                        queueResponse.add("resumed");
+                        safeDownload();
+                        break;
+                    default:
+                        break;
                 }
+
             }
         }
     }
