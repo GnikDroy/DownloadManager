@@ -48,8 +48,8 @@ public class Download implements Runnable {
 
     private final SimpleObjectProperty<DownloadMetadata> metadata;
     private final List<DownloadPartThread> downloadPartThreads = FXCollections.observableArrayList();
-    private ConcurrentLinkedQueue queueCommand;
-    private ConcurrentLinkedQueue queueResponse;
+    private final ConcurrentLinkedQueue queueCommand;
+    private final ConcurrentLinkedQueue queueResponse;
 
     public Download(DownloadMetadata metadata, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
         this.metadata = new SimpleObjectProperty<>(metadata);
@@ -57,26 +57,19 @@ public class Download implements Runnable {
         this.queueResponse = queueResponse;
     }
 
-    public Download(DownloadMetadata metadata, List<DownloadPartMetadata> downloadPartMetadatas, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
-        this.metadata = new SimpleObjectProperty<>(metadata);
-        this.queueCommand = queueCommand;
-        this.queueResponse = queueResponse;
-        load(downloadPartMetadatas);
-    }
-    
     @Override
     public String toString() {
         return "DownloadID:" + metadata.getValue().getDownloadID();
     }
     
-    public DownloadMetadata get_metadata(){
+    public DownloadMetadata getDownloadMetadata(){
         return metadata.getValue();
     }
-    public SimpleObjectProperty<DownloadMetadata> get_metadata_property(){
+    public SimpleObjectProperty<DownloadMetadata> getDownloadMetadataProperty(){
         return metadata;
     }
     
-    public List<DownloadPartMetadata> get_part_metadata(){
+    public List<DownloadPartMetadata> getPartMetadatas(){
         List<DownloadPartMetadata> metadatas=new ArrayList<>();
         for (DownloadPartThread dthread: downloadPartThreads ){
             metadatas.add(dthread.getDownloadPartMetadata());
@@ -84,34 +77,34 @@ public class Download implements Runnable {
         return metadatas;
     }
     
-    public void get_headers() throws IOException {
+    public void setHeaders() throws IOException {
         HttpURLConnection conn = null;
-        conn = (HttpURLConnection) get_metadata().getUrl().openConnection();
+        conn = (HttpURLConnection) getDownloadMetadata().getUrl().openConnection();
         conn.setRequestMethod("HEAD");
-        get_metadata().setSize(conn.getContentLengthLong());
+        getDownloadMetadata().setSize(conn.getContentLengthLong());
         String ranges = conn.getHeaderField("Accept-Ranges");
         if (ranges!=null && !ranges.equals("none")) {
-            get_metadata().setAccelerated(true);
-            get_metadata().setStatus(DownloadStatus.STARTING) ;
+            getDownloadMetadata().setAccelerated(true);
+            getDownloadMetadata().setStatus(DownloadStatus.STARTING) ;
         }
-        get_metadata().setStatus(DownloadStatus.ERROR);
+        getDownloadMetadata().setStatus(DownloadStatus.ERROR);
         
     }
 
-    public void load(List<DownloadPartMetadata> downloadPartMetadatas) {
+    public void loadDownlaodPartMetadatas(List<DownloadPartMetadata> downloadPartMetadatas) {
         for (DownloadPartMetadata downloadPartMetadata : downloadPartMetadatas) {
             ConcurrentLinkedQueue queueCom = new ConcurrentLinkedQueue();
             ConcurrentLinkedQueue queueRes = new ConcurrentLinkedQueue();
-            downloadPartMetadata.setDownloadMetadata(get_metadata());
+            downloadPartMetadata.setDownloadMetadata(getDownloadMetadata());
             DownloadPart downloadPart = new DownloadPart(downloadPartMetadata, queueCom, queueRes);
             downloadPartThreads.add(new DownloadPartThread(downloadPart, downloadPartMetadata, queueCom, queueRes));
         }
     }
 
-    public void create_downloadPartThreads() {
+    public void createDownloadPartThreads() {
         int partID = 0;
-        for (Part part : divide_download()) {
-            DownloadPartMetadata part_metadata = new DownloadPartMetadata(get_metadata(), partID, part);
+        for (Part part : divideDownload()) {
+            DownloadPartMetadata part_metadata = new DownloadPartMetadata(getDownloadMetadata(), partID, part);
             ConcurrentLinkedQueue queueCom = new ConcurrentLinkedQueue();
             ConcurrentLinkedQueue queueRes = new ConcurrentLinkedQueue();
             DownloadPart downloadPart = new DownloadPart(part_metadata, queueCom, queueRes);
@@ -123,23 +116,23 @@ public class Download implements Runnable {
     public void initialize(){
         if (downloadPartThreads.isEmpty()) {
             try {
-                get_headers();
+                setHeaders();
 
             } catch (IOException ex) {
                 Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
-                get_metadata().setStatus(DownloadStatus.ERROR);
+                getDownloadMetadata().setStatus(DownloadStatus.ERROR);
                 return;
             }
-            create_downloadPartThreads();
+            createDownloadPartThreads();
            
         }
     }
 
-    private List<Part> divide_download() {
+    private List<Part> divideDownload() {
         List<Part> parts = new ArrayList<>();
         long start = 0;
-        double size = (double) get_metadata().getSize() / get_metadata().parts;
-        for (int cnt = 0; cnt < get_metadata().parts; cnt++) {
+        double size = (double) getDownloadMetadata().getSize() / getDownloadMetadata().getParts();
+        for (int cnt = 0; cnt < getDownloadMetadata().getParts(); cnt++) {
             Part part = new Part(start, (int) Math.round(size * (cnt + 1)));
             parts.add(part);
             start = (int) Math.round(size * (cnt + 1)) + 1;
@@ -149,10 +142,10 @@ public class Download implements Runnable {
     }
 
     public DownloadStatus getStatus() {
-        return get_metadata().getStatus();
+        return getDownloadMetadata().getStatus();
     }
 
-    public boolean has_downloaded() {
+    public boolean isDownloaded() {
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             if (downloadThread.getDownloadPart().getStatus() != DownloadStatus.COMPLETED) {
                 return false;
@@ -161,7 +154,7 @@ public class Download implements Runnable {
         return true;
     }
 
-    public boolean join_threads() {
+    public boolean joinThreads() {
         boolean alljoined = true;
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             Thread th = downloadThread.thread;
@@ -179,7 +172,7 @@ public class Download implements Runnable {
     }
 
     public void pause() {
-        if (get_metadata().getStatus() != DownloadStatus.DOWNLOADING) {
+        if (getDownloadMetadata().getStatus() != DownloadStatus.DOWNLOADING) {
             return;
         }
         for (DownloadPartThread dthread : downloadPartThreads) {
@@ -194,12 +187,12 @@ public class Download implements Runnable {
                 }
             }
         }
-        get_metadata().setStatus( DownloadStatus.PAUSED);
+        getDownloadMetadata().setStatus( DownloadStatus.PAUSED);
 
     }
 
     public void resume() {
-        if (get_metadata().getStatus() != DownloadStatus.PAUSED) {
+        if (getDownloadMetadata().getStatus() != DownloadStatus.PAUSED) {
             return;
         }
         for (DownloadPartThread dthread : downloadPartThreads) {
@@ -214,11 +207,11 @@ public class Download implements Runnable {
                 }
             }
         }
-        get_metadata().setStatus(DownloadStatus.DOWNLOADING);
+        getDownloadMetadata().setStatus(DownloadStatus.DOWNLOADING);
     }
 
     public void stop() {
-        if (get_metadata().getStatus() != DownloadStatus.PAUSED) {
+        if (getDownloadMetadata().getStatus() != DownloadStatus.PAUSED) {
             return;
         }
         for (DownloadPartThread dthread : downloadPartThreads) {
@@ -233,14 +226,14 @@ public class Download implements Runnable {
                 }
             }
         }
-        get_metadata().setStatus(DownloadStatus.STOPPED);
+        getDownloadMetadata().setStatus(DownloadStatus.STOPPED);
     }
 
-    public void accelerated_download() {
-        if (!get_metadata().getAccelerated()) {
+    public void acceleratedDownload() {
+        if (!getDownloadMetadata().getAccelerated()) {
             return;
         }
-        get_metadata().setStatus(DownloadStatus.DOWNLOADING);
+        getDownloadMetadata().setStatus(DownloadStatus.DOWNLOADING);
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             Thread thread = new Thread(downloadThread.getDownloadPart());
             thread.setName(this.toString() + " " + downloadThread.downloadPart.toString());
@@ -249,14 +242,14 @@ public class Download implements Runnable {
         }
     }
 
-    public void join_parts() {
-        if (!has_downloaded()) {
+    public void joinParts() {
+        if (!isDownloaded()) {
             return;
         }
-        get_metadata().setStatus(DownloadStatus.JOINING);
+        getDownloadMetadata().setStatus(DownloadStatus.JOINING);
         BufferedOutputStream outFile = null;
         try {
-            outFile = new BufferedOutputStream(new FileOutputStream(get_metadata().getFilename()));
+            outFile = new BufferedOutputStream(new FileOutputStream(getDownloadMetadata().getFilename()));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -280,7 +273,7 @@ public class Download implements Runnable {
                 DownloadPart downloadPart = downloadThread.getDownloadPart();
                 Files.deleteIfExists(Paths.get(downloadPart.getFilename()));
             }
-            get_metadata().setStatus(DownloadStatus.COMPLETED);
+            getDownloadMetadata().setStatus(DownloadStatus.COMPLETED);
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
@@ -292,15 +285,15 @@ public class Download implements Runnable {
 
     @Override
     public void run() {
-        if (get_metadata().getStatus()==DownloadStatus.COMPLETED){return;}
+        if (getDownloadMetadata().getStatus()==DownloadStatus.COMPLETED){return;}
         this.initialize();
-        this.accelerated_download();
+        this.acceleratedDownload();
         
-        while (!has_downloaded()) {
+        while (!isDownloaded()) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException ex) {
-                this.get_metadata().setStatus(DownloadStatus.ERROR);
+                this.getDownloadMetadata().setStatus(DownloadStatus.ERROR);
                 Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
             }
             if (!this.queueCommand.isEmpty()) {
@@ -313,7 +306,7 @@ public class Download implements Runnable {
                     case "stop":
                         this.pause();
                         this.stop();
-                        this.join_threads();
+                        this.joinThreads();
                         this.queueResponse.add("stopped");
                         return;
                     case "resume":
@@ -325,8 +318,8 @@ public class Download implements Runnable {
                 }
             }
         }
-        this.join_threads();
-        this.join_parts();
+        this.joinThreads();
+        this.joinParts();
     }
 
 }

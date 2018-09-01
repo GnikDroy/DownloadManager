@@ -52,7 +52,7 @@ public class DownloadPool {
         downloadssaves.clear();
         for (DownloadThread downloadThread:downloadThreads){
             DownloadState download;
-            download=new DownloadState(downloadThread.getDownloadMetadata(),downloadThread.download.getValue().get_part_metadata());
+            download=new DownloadState(downloadThread.getDownloadMetadata(),downloadThread.download.getValue().getPartMetadatas());
             downloadssaves.addDownload(download);
         }
         downloadssaves.save();
@@ -66,7 +66,7 @@ public class DownloadPool {
                 ConcurrentLinkedQueue queueCommand = new ConcurrentLinkedQueue();
                 ConcurrentLinkedQueue queueResponse = new ConcurrentLinkedQueue();
                 Download download = new Download(downloadMetadata, queueCommand, queueResponse);
-                download.load(downloadPartMetadata);
+                download.loadDownlaodPartMetadatas(downloadPartMetadata);
                 Thread thread = new Thread(download);
                 DownloadThread downloadThread = new DownloadThread(downloadMetadata, download, thread, queueCommand, queueResponse);
                 downloadThreads.add(downloadThread);

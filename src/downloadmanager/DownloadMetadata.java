@@ -33,20 +33,19 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author gnik
  */
 public class DownloadMetadata{
-    private SimpleObjectProperty<URL> url;
-    private SimpleObjectProperty<Integer> downloadID;
-    private SimpleObjectProperty<String> filename;
-    public int parts=8;
-    private SimpleObjectProperty<Long> size=new SimpleObjectProperty<>();
-    public int timeout=10000;
-    private SimpleObjectProperty<Boolean> accelerated=new SimpleObjectProperty<>(false);
-    private SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.NEW);
+    private final SimpleObjectProperty<URL> url;
+    private final SimpleObjectProperty<Integer> downloadID;
+    private final SimpleObjectProperty<String> filename;
+    private static final int parts=8;
+    private final SimpleObjectProperty<Long> size=new SimpleObjectProperty<>();
+    private static final int timeout=10000;
+    private final SimpleObjectProperty<Boolean> accelerated=new SimpleObjectProperty<>(false);
+    private final SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.NEW);
     
     public DownloadMetadata(String url,int ID) throws MalformedURLException{
         this.url=new SimpleObjectProperty<>(new URL(url));
         this.downloadID=new SimpleObjectProperty(ID);
-        String file=String.valueOf(ID)+"_"+Paths.get(this.getUrl().getPath()).getFileName().toString();
-        if (file==null){file=String.valueOf(ID);}
+        String file=String.valueOf(ID)+"_"+Paths.get(this.url.getValue().getPath()).getFileName().toString();
         this.filename=new SimpleObjectProperty<>(file);
     }
 
@@ -66,6 +65,7 @@ public class DownloadMetadata{
     public SimpleObjectProperty<Integer> getDownloadIDProperty() {
         return downloadID;
     }
+    
     public String getFilename() {
         return filename.getValue();
     }
@@ -107,5 +107,11 @@ public class DownloadMetadata{
     
     public void setAccelerated(boolean a){
         accelerated.setValue(a);
+    }
+    public int getTimeout(){
+        return timeout;
+    }
+    public int getParts(){
+        return parts;
     }
 }

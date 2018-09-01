@@ -93,7 +93,7 @@ public class DownloadPart implements Runnable {
         URLConnection connection = getMetadata().downloadMetadata.getUrl().openConnection();
         connection.setRequestProperty("Range", "bytes=" + String.valueOf(getMetadata().getPart().getStartByte() + getMetadata().getCompletedBytes()) + "-" + String.valueOf(getMetadata().getPart().getEndByte()));
         connection.setConnectTimeout(5000);
-        connection.setReadTimeout(getMetadata().downloadMetadata.timeout);
+        connection.setReadTimeout(getMetadata().downloadMetadata.getTimeout());
         connection.connect();
 
         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
