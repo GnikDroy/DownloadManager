@@ -91,7 +91,7 @@ public class DownloadPool {
     }
 
 
-    private void waitUntilCommand(DownloadThread downloadThread,String command){
+    private void waitUntilCommand(DownloadThread downloadThread,DownloadAction.Response command){
         while (true) {
             if(!downloadThread.queueResponse.isEmpty()){
                  if(downloadThread.queueResponse.peek().equals(command)){
@@ -105,8 +105,8 @@ public class DownloadPool {
         if (!downloadThread.thread.isAlive()) {
             return;
         }
-        downloadThread.queueCommand.add("stop");
-        waitUntilCommand(downloadThread,"stopped");
+        downloadThread.queueCommand.add(DownloadAction.Command.STOP);
+        waitUntilCommand(downloadThread,DownloadAction.Response.STOPPED);
         joinThread(downloadThread);
 
     }
@@ -116,15 +116,15 @@ public class DownloadPool {
         if (!downloadThread.thread.isAlive()) {
             return;
         }
-        downloadThread.queueCommand.add("pause");
-        waitUntilCommand(downloadThread,"paused");
+        downloadThread.queueCommand.add(DownloadAction.Command.PAUSE);
+        waitUntilCommand(downloadThread,DownloadAction.Response.PAUSED);
     }
     public void resumeDownload(DownloadThread downloadThread) {
         if (!downloadThread.thread.isAlive()) {
             return;
         }
-        downloadThread.queueCommand.add("resume");
-        waitUntilCommand(downloadThread,"resumed");
+        downloadThread.queueCommand.add(DownloadAction.Command.RESUME);
+        waitUntilCommand(downloadThread,DownloadAction.Response.RESUMED);
     }
     
     public void removeDownload(DownloadThread downloadThread){

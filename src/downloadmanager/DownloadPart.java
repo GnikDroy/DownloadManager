@@ -110,15 +110,15 @@ public class DownloadPart implements Runnable {
             getMetadata().setCompletedBytes(completedBytes);
 
             if (!queueCommand.isEmpty()) {
-                if (queueCommand.peek().equals("pause")) {
+                if (queueCommand.peek().equals(DownloadAction.Command.PAUSE)) {
                     pause();
                     queueCommand.poll();
-                    queueResponse.add("paused");
+                    queueResponse.add(DownloadAction.Response.PAUSED);
                     return false;
-                } else if (queueCommand.peek().equals("stop")) {
+                } else if (queueCommand.peek().equals(DownloadAction.Command.STOP)) {
                     stop();
                     //I am not adding a poll here because it will stop execution in run thread as well.
-                    queueResponse.add("stopped");
+                    queueResponse.add(DownloadAction.Response.STOPPED);
                     return false;
                 }
             }
@@ -173,15 +173,15 @@ public class DownloadPart implements Runnable {
             }
 
             if (!queueCommand.isEmpty()) {
-                String command = (String) queueCommand.poll();
+                DownloadAction.Command command = (DownloadAction.Command) queueCommand.poll();
                 switch (command) {
-                    case "stop":
+                    case STOP:
                         stop();
-                        queueResponse.add("stopped");
+                        queueResponse.add(DownloadAction.Response.STOPPED);
                         return;
-                    case "resume":
+                    case RESUME:
                         resume();
-                        queueResponse.add("resumed");
+                        queueResponse.add(DownloadAction.Response.RESUMED);
                         safeDownload();
                         break;
                     default:

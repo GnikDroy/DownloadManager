@@ -176,9 +176,9 @@ public class Download implements Runnable {
         }
     }
 
-    public void waitUntilResponse(DownloadPartThread dthread, String command) {
+    public void waitUntilResponse(DownloadPartThread dthread, DownloadAction.Response response) {
         while (true) {
-            if (!dthread.queueResponse.isEmpty() && dthread.queueResponse.peek().equals(command)) {
+            if (!dthread.queueResponse.isEmpty() && dthread.queueResponse.peek().equals(response)) {
                 dthread.queueResponse.poll();
                 break;
             }
@@ -194,8 +194,8 @@ public class Download implements Runnable {
             if (dthread.thread==null || !dthread.thread.isAlive()) {
                 return;
             }
-            dthread.queueCommand.add("pause");
-            waitUntilResponse(dthread, "paused");
+            dthread.queueCommand.add(DownloadAction.Command.PAUSE);
+            waitUntilResponse(dthread, DownloadAction.Response.PAUSED);
         }
 
         setStatus(DownloadStatus.PAUSED);
@@ -210,8 +210,8 @@ public class Download implements Runnable {
             if (dthread.thread==null || !dthread.thread.isAlive()) {
                 return;
             }
-            dthread.queueCommand.add("resume");
-            waitUntilResponse(dthread, "resumed");
+            dthread.queueCommand.add(DownloadAction.Command.RESUME);
+            waitUntilResponse(dthread, DownloadAction.Response.RESUMED);
         }
         setStatus(DownloadStatus.DOWNLOADING);
     }
@@ -224,8 +224,8 @@ public class Download implements Runnable {
             if (dthread.thread==null || !dthread.thread.isAlive()) {
                 return;
             }
-            dthread.queueCommand.add("stop");
-            waitUntilResponse(dthread, "stopped");
+            dthread.queueCommand.add(DownloadAction.Command.STOP);
+            waitUntilResponse(dthread, DownloadAction.Response.STOPPED);
         }
 
         setStatus(DownloadStatus.STOPPED);
@@ -290,20 +290,20 @@ public class Download implements Runnable {
                 Logger.getLogger(Download.class.getName()).log(Level.SEVERE, null, ex);
             }
             if (!this.queueCommand.isEmpty()) {
-                String command = (String) this.queueCommand.poll();
+                DownloadAction.Command command = (DownloadAction.Command) this.queueCommand.poll();
                 switch (command) {
-                    case "pause":
+                    case PAUSE:
                         this.pause();
-                        this.queueResponse.add("paused");
+                        this.queueResponse.add(DownloadAction.Response.PAUSED);
                         break;
-                    case "stop":
+                    case STOP:
                         this.stop();
                         this.joinThreads();
-                        this.queueResponse.add("stopped");
+                        this.queueResponse.add(DownloadAction.Response.STOPPED);
                         return;
-                    case "resume":
+                    case RESUME:
                         this.resume();
-                        this.queueResponse.add("resumed");
+                        this.queueResponse.add(DownloadAction.Response.RESUMED);
                         break;
                     default:
                         break;
