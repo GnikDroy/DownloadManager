@@ -1,3 +1,4 @@
-/build
 *.class
-history.dat
+**/.idea/
+**/.idea/**
+**/history.dat

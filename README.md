@@ -1,8 +1,10 @@
 # DownloadManager
 
-![codefactor](https://www.codefactor.io/repository/github/gnikdroy/downloadmanager/badge)  [![Maintainability](https://api.codeclimate.com/v1/badges/98e2ca2a1eaedcd7934d/maintainability)](https://codeclimate.com/github/GnikDroy/DownloadManager/maintainability)
+![codefactor](https://www.codefactor.io/repository/github/gnikdroy/downloadmanager/badge)  
+[![Maintainability](https://api.codeclimate.com/v1/badges/98e2ca2a1eaedcd7934d/maintainability)](https://codeclimate.com/github/GnikDroy/DownloadManager/maintainability)
 
-DownloadManager is a simple file download manager written in java. It downloads parts of a file in different threads and combines them later for efficient download.
+DownloadManager is a simple file download manager written in java. 
+It downloads parts of a file in different threads and combines them later for efficient download.
 
 DownloadManager fully supports pause/resume of downloads. Similarly, the downloads objects are serialized to disk to make them persistent.
 The main GUI is made by the JavaFX framework in the Observer/Observable model for easy extension.
@@ -11,15 +13,30 @@ The main GUI is made by the JavaFX framework in the Observer/Observable model fo
 ![DownloadManager](https://raw.githubusercontent.com/GnikDroy/DownloadManager/master/screenshots/screenshot.png)
 
 
-# Building 
+# Building with gradle
 
-The project uses ANT build scripts (Netbeans) to build. If you have Netbeans, simply import the project and run from there. If you donot have Netbeans, go [here](https://ant.apache.org/) and get yourself a copy of the ANT executable.
-To build the project, go inside the project directory and simply run `ant`. ANT must be in your path. The built jar file will be under the dist folder.
-Execute the jar file to run the program.
+If you do not have gradle go [here](https://gradle.org/install/) to get the latest version of gradle.
 
-# Installation
+Clone the repository in your local system
+
+`git clone https://github.com/GnikDroy/DownloadManager`
+
+To build the project go to project root and run the following command.
+
+`cd DownloadManager`
+
+`gradle build`
+
+A fat jar will be built in `builds/libs` folder.
+
+Execute the jar file by the following command
+
+`java -jar downloadmanager-0.1.0.jar`
+
+# Run without Building
 
 __Linux/Windows/Mac__
 
-There is a built .jar file inside the dist folder.
-To run the program simply execute `java -jar DownloadManager.jar` in the terminal or command prompt. Java must be in your path for this to work.
+There is a built .jar file inside the `builds/lib` folder. 
+To run the program simply execute `java -jar downloadmanager-0.1.0.jar` in the terminal or command prompt. 
+Java must be installed and in your path for this to work.
