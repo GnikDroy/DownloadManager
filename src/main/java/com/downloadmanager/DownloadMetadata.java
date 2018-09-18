@@ -44,11 +44,11 @@ public class DownloadMetadata{
     private final SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.NEW);
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param url The Download URL
      * @param ID The unique integer that represents the download
-     * @throws MalformedURLException
+     * @throws MalformedURLException If URL is improper exception is thrown.
      */
     public DownloadMetadata(String url,int ID) throws MalformedURLException{
         this.url=new SimpleObjectProperty<>(new URL(url));
@@ -58,7 +58,7 @@ public class DownloadMetadata{
     }
 
     /**
-     * Returns the URL object
+     * Returns the URL object.
      * @return URL object
      */
     public URL getUrl() {
@@ -67,14 +67,14 @@ public class DownloadMetadata{
 
     /**
      * Return the simple object property of URL.
-     * @return SimpleObjectProperty<URL>
+     * @return The simple object of URL
      */
     public SimpleObjectProperty getUrlProperty() {
         return url;
     }
 
     /**
-     * Returns the download ID of the download
+     * Returns the download ID of the download.
      * @return Download ID
      **/
     public Integer getDownloadID() {
@@ -82,7 +82,7 @@ public class DownloadMetadata{
     }
 
     /**
-     * Returns the observable object associated with the downloadID
+     * Returns the observable object associated with the downloadID.
      * @return Observable object of the downloadID
      */
     public SimpleObjectProperty<Integer> getDownloadIDProperty() {

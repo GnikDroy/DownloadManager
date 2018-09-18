@@ -85,7 +85,7 @@ public class DownloadPool {
     }
 
     /**
-     * Checks if a URL is valid
+     * Checks if a URL is valid.
      * @param url String representation of the URL
      * @return If a URL is valid
      */
@@ -145,7 +145,7 @@ public class DownloadPool {
     }
 
     /**
-     * Pauses the download from a particular DownloadThread
+     * Pauses the download from a particular DownloadThread.
      * @param downloadThread The download thread to be paused.
      */
     public void pauseDownload(DownloadThread downloadThread) {
@@ -153,7 +153,7 @@ public class DownloadPool {
         waitUntilCommand(downloadThread,DownloadAction.Response.PAUSED);
     }
     /**
-     * Resumes the download from a particular DownloadThread
+     * Resumes the download from a particular DownloadThread.
      * @param downloadThread The download thread to be resumed.
      */
 
@@ -163,7 +163,7 @@ public class DownloadPool {
     }
 
     /**
-     * Stops and removes the download from pool
+     * Stops and removes the download from pool.
      * @param downloadThread The download thread to be removed.
      */
 
@@ -175,7 +175,7 @@ public class DownloadPool {
     }
 
     /**
-     * Stops all downloads
+     * Stops all downloads.
      */
 
     public void stopAll() {
@@ -185,7 +185,7 @@ public class DownloadPool {
     }
 
     /**
-     * Joins a thread of the downloadThread object
+     * Joins a thread of the downloadThread object.
       * @param downloadThread The downloadThread object to be joined
      */
     public void joinThread(DownloadThread downloadThread){

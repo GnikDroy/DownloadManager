@@ -73,7 +73,7 @@ public class Download implements Runnable {
     /**
      * This sets the headers from the HTTP response.
      * Headers such as Accept-Ranges is required to be initialized.
-     * @throws IOException
+     * @throws IOException Exception is thrown if connection to the url cannot be made.
      */
     public void setHeaders() throws IOException {
         HttpURLConnection conn;
@@ -174,7 +174,7 @@ public class Download implements Runnable {
 
     /**
      * Joins a thread object handling all exceptions.
-     * @param thread
+     * @param thread The thread to be joined.
      */
     public void joinThread(Thread thread) {
         if (thread != null && !thread.isAlive()) {
@@ -196,7 +196,7 @@ public class Download implements Runnable {
     }
 
     /**
-     * Waits for a response from a thread
+     * Waits for a response from a thread.
      * @param dthread The download part thread which is giving the response
      * @param response The response type.
      */
@@ -227,7 +227,7 @@ public class Download implements Runnable {
     }
 
     /**
-     * Pause the download
+     * Pause the download.
      */
     public void pause() {
         if (getStatus() != DownloadStatus.DOWNLOADING) {
@@ -238,7 +238,7 @@ public class Download implements Runnable {
     }
 
     /**
-     * Resume the download
+     * Resume the download.
      */
     public void resume() {
         if (getStatus() != DownloadStatus.PAUSED) {
@@ -249,7 +249,7 @@ public class Download implements Runnable {
     }
 
     /**
-     * Stop the download
+     * Stop the download.
      */
     public void stop() {
         if (getStatus() == DownloadStatus.STOPPED) {
@@ -278,7 +278,7 @@ public class Download implements Runnable {
 
     /**
      * Deletes the download part files.
-     * @throws IOException
+     * @throws IOException Exception occurs if the file could not be deleted or found.
      */
     public void deleteDownloadPartFiles() throws IOException {
         for (DownloadPartThread downloadThread : downloadPartThreads) {
@@ -288,10 +288,10 @@ public class Download implements Runnable {
     }
 
     /**
-     * Copies data from one stream to the other
-     * @param outFile The stream to write to
+     * Copies data from one stream to the other.
+     * @param outFile The stream to write to.
      * @param inFile The stream to read from.
-     * @throws IOException
+     * @throws IOException Exception is thrown if cannot read from input stream.
      */
     public void copyToStream(BufferedOutputStream outFile, BufferedInputStream inFile) throws IOException {
         int byt;

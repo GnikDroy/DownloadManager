@@ -56,12 +56,7 @@ public class DownloadManager extends Application {
     Button stopButton = new Button("Stop");
     Button removeButton = new Button("Remove");
 
-    /**
-     * @param args the command line arguments
-     * @throws java.io.IOException
-     * @throws java.lang.InterruptedException
-     */
-    public static void main(String args[]) throws IOException, InterruptedException {
+    public static void main(String args[]) {
         launch(args);
     }
 

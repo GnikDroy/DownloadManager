@@ -51,7 +51,7 @@ public class DownloadSaves {
     }
 
     /**
-     * Adds a download to the list to save
+     * Adds a download to the list to save.
      * @param download DownloadState object which represents the state of download.
      */
     public void addDownload(DownloadState download) {
@@ -60,6 +60,7 @@ public class DownloadSaves {
 
     /**
      * Returns the list of DownloadState objects.
+     * @return All the downloads.
      */
     public List<DownloadState> getDownloads() {
         return downloads;
