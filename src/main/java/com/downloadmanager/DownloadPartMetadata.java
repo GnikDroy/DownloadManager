@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2018 gnik.
@@ -27,88 +27,62 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
- *
+ * This object represents the metatdata information of each download part.
  * @author gnik
  */
-public class DownloadPartMetadata{
-   public SimpleObjectProperty<Integer> partID;
-   public SimpleObjectProperty<DownloadStatus> status=new SimpleObjectProperty<>(DownloadStatus.STARTING);
-   public String filename;
-   
-   //This field will be included multiple time if it is included
-   @XStreamOmitField
-   public DownloadMetadata downloadMetadata;
-   
-   public SimpleObjectProperty<Part> part;
-   public SimpleObjectProperty<Long> completedBytes=new SimpleObjectProperty<>(0L);
-   public SimpleObjectProperty<Integer> retries=new SimpleObjectProperty<>(0);
+public class DownloadPartMetadata {
+    public SimpleObjectProperty<Integer> partID;
+    public SimpleObjectProperty<DownloadStatus> status = new SimpleObjectProperty<>(DownloadStatus.STARTING);
+    public String filename;
+
+    //This field will be included multiple time if it is included
+    //The annotation lets the field to be omitted by XStream
+    @XStreamOmitField
+    public DownloadMetadata downloadMetadata;
+
+    public SimpleObjectProperty<Part> part;
+    public SimpleObjectProperty<Long> completedBytes = new SimpleObjectProperty<>(0L);
+    public SimpleObjectProperty<Integer> retries = new SimpleObjectProperty<>(0);
 
 
-    public DownloadPartMetadata(DownloadMetadata downloadMetadata,int partID,Part part){
-       this.downloadMetadata=downloadMetadata; 
-       this.partID=new SimpleObjectProperty<>(partID);
-       this.part=new SimpleObjectProperty<>(part);
-       this.filename=downloadMetadata.getFilename()+".part"+String.valueOf(partID);
-   }
+    public DownloadPartMetadata(DownloadMetadata downloadMetadata, int partID, Part part) {
+        this.downloadMetadata = downloadMetadata;
+        this.partID = new SimpleObjectProperty<>(partID);
+        this.part = new SimpleObjectProperty<>(part);
+        this.filename = downloadMetadata.getFilename() + ".part" + String.valueOf(partID);
+    }
 
-    public Part getPart(){
+    public Part getPart() {
         return part.getValue();
     }
-    public void setPart(Part p){
-        part.setValue(p);
+
+    public void setDownloadMetadata(DownloadMetadata downloadMetadata) {
+        this.downloadMetadata = downloadMetadata;
     }
-    public SimpleObjectProperty<Part> getPartProperty(){
-        return part;
-    }
-    
-    public void setDownloadMetadata(DownloadMetadata downloadMetadata){
-        this.downloadMetadata=downloadMetadata;
-    }
-    
-    public SimpleObjectProperty<DownloadStatus> getStatusProperty() {
-        return status;
-    }
-    public DownloadStatus getStatus(){
+
+    public DownloadStatus getStatus() {
         return status.getValue();
     }
+
     public void setStatus(DownloadStatus s) {
         status.setValue(s);
     }
-   
-   public void setCompletedBytes(long b){
-       completedBytes.setValue(b);
-   }
-      
-   public long getCompletedBytes(){
-       return completedBytes.getValue();
-   }
-   
-   public SimpleObjectProperty<Long> getCompletedBytesProperty(){
-       return completedBytes;
-   }
-   
-   public void setRetries(int r){
-       retries.setValue(r);
-   }
-   
-   public int getRetries(){
-       return retries.getValue();
-   }
-   
-   public void incrementRetries(){
-       retries.setValue(retries.getValue()+1);
-   }
-   public SimpleObjectProperty<Integer> getRetriesProperty(){
-       return retries;
-   }
+
+    public void setCompletedBytes(long b) {
+        completedBytes.setValue(b);
+    }
+
+    public long getCompletedBytes() {
+        return completedBytes.getValue();
+    }
+
+    public void incrementRetries() {
+        retries.setValue(retries.getValue() + 1);
+    }
 
     public String getFilename() {
         return filename;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-   
-   
+
 }

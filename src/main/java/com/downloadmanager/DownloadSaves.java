@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This object contains methods to load and save downloads when the program execution stops.
  * @author gnik
  */
 public class DownloadSaves {
@@ -50,19 +50,32 @@ public class DownloadSaves {
 
     }
 
+    /**
+     * Adds a download to the list to save
+     * @param download DownloadState object which represents the state of download.
+     */
     public void addDownload(DownloadState download) {
         downloads.add(download);
     }
 
+    /**
+     * Returns the list of DownloadState objects.
+     */
     public List<DownloadState> getDownloads() {
         return downloads;
     }
 
+    /**
+     * Clears the list of downloads.
+     */
     public void clear() {
         downloads = new ArrayList<>();
 
     }
 
+    /**
+     * Saves the current list of downloads to the disk.
+     */
     public void save() {
         XStream xstream = new XStream(new StaxDriver());
         String object = xstream.toXML(downloads);
@@ -74,6 +87,9 @@ public class DownloadSaves {
 
     }
 
+    /**
+     * Creates an empty file to store download information.
+     */
     public void createNewFile() {
         String object="<?xml version=\"1.0\" ?><list></list>";
         try (OutputStreamWriter file = new OutputStreamWriter(new FileOutputStream(saveFilename), StandardCharsets.UTF_8)) {
@@ -84,6 +100,9 @@ public class DownloadSaves {
 
     }
 
+    /**
+     * Loads the download list from the disk.
+     */
     public void load() {
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(saveFilename), StandardCharsets.UTF_8)) {
 

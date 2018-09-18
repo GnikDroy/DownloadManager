@@ -33,7 +33,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
- *
+ * This object contains all DownloadThread/Download objects.
+ * It handles all actions of the download.
  * @author gnik
  */
 public class DownloadPool {
@@ -44,8 +45,10 @@ public class DownloadPool {
     public DownloadPool() {
         downloadSaves.load();
     }
-    
-    
+
+    /**
+     * This saves the current download list to the disk.
+     */
     public void save(){
         downloadSaves.clear();
         for (DownloadThread downloadThread:downloadThreads){
@@ -55,7 +58,12 @@ public class DownloadPool {
         }
         downloadSaves.save();
     }
-    
+
+    /**
+     * This loads the download list from the disk.
+     * Creates a DownloadPool object that contains all downloads
+     *  @return Returns the DownloadPool object that contains all downloads from disk
+     */
     public DownloadPool load() {
         if(downloadSaves.getDownloads()==null){return this;}
         for (DownloadState downloadState : downloadSaves.getDownloads()) {
@@ -65,7 +73,7 @@ public class DownloadPool {
                 ConcurrentLinkedQueue queueCommand = new ConcurrentLinkedQueue();
                 ConcurrentLinkedQueue queueResponse = new ConcurrentLinkedQueue();
                 Download download = new Download(downloadMetadata, queueCommand, queueResponse);
-                download.loadDownlaodPartMetadatas(downloadPartMetadata);
+                download.loadDownloadPartMetadatas(downloadPartMetadata);
                 Thread thread = new Thread(download);
                 DownloadThread downloadThread = new DownloadThread(downloadMetadata, download, thread, queueCommand, queueResponse);
                 downloadThreads.add(downloadThread);
@@ -76,7 +84,11 @@ public class DownloadPool {
         return this;
     }
 
-    
+    /**
+     * Checks if a URL is valid
+     * @param url String representation of the URL
+     * @return If a URL is valid
+     */
     public boolean isValidUrl(String url) {
         try {
             URL test=new URL(url);
@@ -90,72 +102,92 @@ public class DownloadPool {
         return downloadThreads;
     }
 
-
-    private void waitUntilCommand(DownloadThread downloadThread,DownloadAction.Response command){
+    /**
+     * Waits until response of a command is recieved.
+     * @param downloadThread The thread to which the command is issued
+     * @param response The response from the command.
+     */
+    private void waitUntilCommand(DownloadThread downloadThread,DownloadAction.Response response){
+        if (!downloadThread.thread.isAlive()) {
+            return;
+        }
         while (true) {
             if(!downloadThread.queueResponse.isEmpty()){
-                 if(downloadThread.queueResponse.peek().equals(command)){
+                 if(downloadThread.queueResponse.peek().equals(response)){
                      downloadThread.queueResponse.poll();
                      break;
                  }
             }
         }
     }
-    public void stopDownload(DownloadThread downloadThread) {
+
+    /**
+     * Issues a command to the thread.
+     * @param downloadThread The object to issue a command to
+     * @param command The command to be issued.
+     */
+    private void issueCommand(DownloadThread downloadThread, DownloadAction.Command command){
         if (!downloadThread.thread.isAlive()) {
             return;
         }
-        downloadThread.queueCommand.add(DownloadAction.Command.STOP);
+        downloadThread.queueCommand.add(command);
+    }
+
+    /**
+     * Stops the download from a particular DownloadThread
+     * @param downloadThread The download thread to be stopped.
+     */
+    public void stopDownload(DownloadThread downloadThread) {
+        issueCommand(downloadThread,DownloadAction.Command.STOP);
         waitUntilCommand(downloadThread,DownloadAction.Response.STOPPED);
         joinThread(downloadThread);
 
     }
 
-    
+    /**
+     * Pauses the download from a particular DownloadThread
+     * @param downloadThread The download thread to be paused.
+     */
     public void pauseDownload(DownloadThread downloadThread) {
-        if (!downloadThread.thread.isAlive()) {
-            return;
-        }
-        downloadThread.queueCommand.add(DownloadAction.Command.PAUSE);
+        issueCommand(downloadThread, DownloadAction.Command.PAUSE);
         waitUntilCommand(downloadThread,DownloadAction.Response.PAUSED);
     }
+    /**
+     * Resumes the download from a particular DownloadThread
+     * @param downloadThread The download thread to be resumed.
+     */
+
     public void resumeDownload(DownloadThread downloadThread) {
-        if (!downloadThread.thread.isAlive()) {
-            return;
-        }
-        downloadThread.queueCommand.add(DownloadAction.Command.RESUME);
+        issueCommand(downloadThread, DownloadAction.Command.RESUME);
         waitUntilCommand(downloadThread,DownloadAction.Response.RESUMED);
     }
-    
+
+    /**
+     * Stops and removes the download from pool
+     * @param downloadThread The download thread to be removed.
+     */
+
     public void removeDownload(DownloadThread downloadThread){
         if(downloadThread.thread.isAlive()){
             stopDownload(downloadThread);
-            try {
-                downloadThread.thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(DownloadPool.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         downloadThreads.remove(downloadThread);
     }
 
-    public void pauseAll() {
-        for (DownloadThread downloadThread : downloadThreads) {
-            pauseDownload(downloadThread);
-        }
-    }
-
-    public void resumeAll() {
-        for (DownloadThread downloadThread : downloadThreads) {
-            resumeDownload(downloadThread);
-        }
-    }
+    /**
+     * Stops all downloads
+     */
 
     public void stopAll() {
         for (DownloadThread downloadThread : downloadThreads) {
             stopDownload(downloadThread);
         }
     }
+
+    /**
+     * Joins a thread of the downloadThread object
+      * @param downloadThread The downloadThread object to be joined
+     */
     public void joinThread(DownloadThread downloadThread){
         try {
                 downloadThread.thread.join();
@@ -163,11 +195,20 @@ public class DownloadPool {
                 Logger.getLogger(DownloadPool.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
+
+    /**
+     * Joins all downloadThread objects.
+     */
     public void joinThreads() {
         for (DownloadThread downloadThread : downloadThreads) {
             joinThread(downloadThread);
         }
     }
+
+    /**
+     * Starts a new download.
+     * @param url The download URL
+     */
     public void newDownload(String url) {
         DownloadMetadata downloadMetadata;
         try {

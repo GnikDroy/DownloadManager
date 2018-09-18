@@ -24,7 +24,7 @@
 package com.downloadmanager;
 
 /**
- *
+ * This class represents all the actions and responses a command can have.
  * @author gnik
  */
 public class DownloadAction {

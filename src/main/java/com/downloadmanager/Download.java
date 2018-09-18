@@ -35,13 +35,9 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
- *
+ * This class represents the download object.
+ * It is responsible for handling all actions of a particular download and it's download parts.
  * @author gnik
  */
 public class Download implements Runnable {
@@ -66,10 +62,6 @@ public class Download implements Runnable {
         return metadata.getValue();
     }
 
-    public SimpleObjectProperty<DownloadMetadata> getDownloadMetadataProperty() {
-        return metadata;
-    }
-
     public List<DownloadPartMetadata> getPartMetadatas() {
         List<DownloadPartMetadata> metadatas = new ArrayList<>();
         for (DownloadPartThread dthread : downloadPartThreads) {
@@ -78,6 +70,11 @@ public class Download implements Runnable {
         return metadatas;
     }
 
+    /**
+     * This sets the headers from the HTTP response.
+     * Headers such as Accept-Ranges is required to be initialized.
+     * @throws IOException
+     */
     public void setHeaders() throws IOException {
         HttpURLConnection conn;
         conn = (HttpURLConnection) getDownloadMetadata().getUrl().openConnection();
@@ -91,7 +88,11 @@ public class Download implements Runnable {
 
     }
 
-    public void loadDownlaodPartMetadatas(List<DownloadPartMetadata> downloadPartMetadatas) {
+    /**
+     * This loads the DownloadPartMetadata from the object.
+     * @param downloadPartMetadatas The object that contains the partial download information,
+     */
+    public void loadDownloadPartMetadatas(List<DownloadPartMetadata> downloadPartMetadatas) {
         for (DownloadPartMetadata downloadPartMetadata : downloadPartMetadatas) {
             ConcurrentLinkedQueue queueCom = new ConcurrentLinkedQueue();
             ConcurrentLinkedQueue queueRes = new ConcurrentLinkedQueue();
@@ -101,6 +102,10 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * This creates the threads for the download parts.
+     * It is useful if the metadata was loaded from file.
+     */
     public void createDownloadPartThreads() {
         int partID = 0;
         for (Part part : divideDownload()) {
@@ -114,6 +119,9 @@ public class Download implements Runnable {
 
     }
 
+    /**
+     * This initializes the download.
+     */
     public void initialize() {
         //If download Part Threads is not empty and loaded from file then skip.
         if (downloadPartThreads.isEmpty()) {
@@ -130,6 +138,10 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * This divides the download into equal parts.
+     * @return The list of parts which the download is divided into.
+     */
     private List<Part> divideDownload() {
         List<Part> parts = new ArrayList<>();
         long start = 0;
@@ -160,6 +172,10 @@ public class Download implements Runnable {
         return true;
     }
 
+    /**
+     * Joins a thread object handling all exceptions.
+     * @param thread
+     */
     public void joinThread(Thread thread) {
         if (thread != null && !thread.isAlive()) {
             try {
@@ -170,12 +186,20 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * This joins all the threads from the download parts.
+     */
     public void joinThreads() {
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             joinThread(downloadThread.thread);
         }
     }
 
+    /**
+     * Waits for a response from a thread
+     * @param dthread The download part thread which is giving the response
+     * @param response The response type.
+     */
     public void waitUntilResponse(DownloadPartThread dthread, DownloadAction.Response response) {
         while (true) {
             if (!dthread.queueResponse.isEmpty() && dthread.queueResponse.peek().equals(response)) {
@@ -186,51 +210,58 @@ public class Download implements Runnable {
 
     }
 
+    /**
+     * Issues a command and waits for the response.
+     * The command is issued to all download part threads
+     * @param command The command to issue.
+     * @param response The response that should be received.
+     */
+    public void issueCommand(DownloadAction.Command command,DownloadAction.Response response){
+        for (DownloadPartThread dthread : downloadPartThreads) {
+            if (dthread.thread==null || !dthread.thread.isAlive()) {
+                continue;
+            }
+            dthread.queueCommand.add(command);
+            waitUntilResponse(dthread, response);
+        }
+    }
+
+    /**
+     * Pause the download
+     */
     public void pause() {
         if (getStatus() != DownloadStatus.DOWNLOADING) {
             return;
         }
-        for (DownloadPartThread dthread : downloadPartThreads) {
-            if (dthread.thread==null || !dthread.thread.isAlive()) {
-                return;
-            }
-            dthread.queueCommand.add(DownloadAction.Command.PAUSE);
-            waitUntilResponse(dthread, DownloadAction.Response.PAUSED);
-        }
-
+        issueCommand(DownloadAction.Command.PAUSE,DownloadAction.Response.PAUSED);
         setStatus(DownloadStatus.PAUSED);
-
     }
 
+    /**
+     * Resume the download
+     */
     public void resume() {
         if (getStatus() != DownloadStatus.PAUSED) {
             return;
         }
-        for (DownloadPartThread dthread : downloadPartThreads) {
-            if (dthread.thread==null || !dthread.thread.isAlive()) {
-                return;
-            }
-            dthread.queueCommand.add(DownloadAction.Command.RESUME);
-            waitUntilResponse(dthread, DownloadAction.Response.RESUMED);
-        }
+        issueCommand(DownloadAction.Command.RESUME,DownloadAction.Response.RESUMED);
         setStatus(DownloadStatus.DOWNLOADING);
     }
 
+    /**
+     * Stop the download
+     */
     public void stop() {
         if (getStatus() == DownloadStatus.STOPPED) {
             return;
         }
-        for (DownloadPartThread dthread : downloadPartThreads) {
-            if (dthread.thread==null || !dthread.thread.isAlive()) {
-                return;
-            }
-            dthread.queueCommand.add(DownloadAction.Command.STOP);
-            waitUntilResponse(dthread, DownloadAction.Response.STOPPED);
-        }
-
+        issueCommand(DownloadAction.Command.STOP,DownloadAction.Response.STOPPED);
         setStatus(DownloadStatus.STOPPED);
     }
 
+    /**
+     * Start the download part thread objects.
+     */
     public void startDownloadPartThreads() {
         if (!getDownloadMetadata().getAccelerated()) {
             setStatus(DownloadStatus.ERROR);
@@ -245,6 +276,10 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * Deletes the download part files.
+     * @throws IOException
+     */
     public void deleteDownloadPartFiles() throws IOException {
         for (DownloadPartThread downloadThread : downloadPartThreads) {
             DownloadPart downloadPart = downloadThread.getDownloadPart();
@@ -252,6 +287,12 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * Copies data from one stream to the other
+     * @param outFile The stream to write to
+     * @param inFile The stream to read from.
+     * @throws IOException
+     */
     public void copyToStream(BufferedOutputStream outFile, BufferedInputStream inFile) throws IOException {
         int byt;
         while ((byt = inFile.read()) != -1 && outFile != null) {
@@ -259,6 +300,9 @@ public class Download implements Runnable {
         }
     }
 
+    /**
+     * Joins all the download part after the download is completed.
+     */
     public void joinDownloadParts() {
         if (!isDownloaded()) {
             return;
@@ -281,6 +325,10 @@ public class Download implements Runnable {
         }
 
     }
+
+    /**
+     * This loops is run until the download is completed.
+     */
     public void downloadLoop(){
         while (!isDownloaded()) {
             try {
@@ -311,6 +359,11 @@ public class Download implements Runnable {
             }
         }
     }
+
+    /**
+     * Since the class implements the runnable interface.
+     * This method is run when the class is run as a thread.
+     */
     @Override
     public void run() {
         if (getDownloadMetadata().getStatus() == DownloadStatus.COMPLETED) {

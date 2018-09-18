@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
- *
+ * This class represents the part of a download.
  * @author gnik
  */
 public class DownloadPart implements Runnable {
@@ -42,6 +42,12 @@ public class DownloadPart implements Runnable {
     private final ConcurrentLinkedQueue queueCommand;
     private final ConcurrentLinkedQueue queueResponse;
 
+    /**
+     * Constructor for the DownloadPart object
+     * @param metadata DownloadPartMetadata object that contains the metadata of the download part.
+     * @param queueCommand A queue object used to communicate with threads. This object gathers commands from thread.
+     * @param queueResponse A queue object used to communicate with threads. This object gives responses to thread.
+     */
     public DownloadPart(DownloadPartMetadata metadata, ConcurrentLinkedQueue queueCommand, ConcurrentLinkedQueue queueResponse) {
         this.queueCommand = queueCommand;
         this.queueResponse = queueResponse;
@@ -62,32 +68,52 @@ public class DownloadPart implements Runnable {
         return getMetadata().getStatus();
     }
 
+    /**
+     * Pause the download.
+     */
     public void pause() {
         if (getMetadata().getStatus() == DownloadStatus.DOWNLOADING) {
             getMetadata().setStatus(DownloadStatus.PAUSED);
         }
     }
-
+    /**
+     * Resume the download.
+     */
     public void resume() {
         if (getMetadata().getStatus() == DownloadStatus.PAUSED) {
             getMetadata().setStatus(DownloadStatus.DOWNLOADING);
         }
     }
-
+    /**
+     * Stop the download.
+     */
     public void stop() {
         if (getMetadata().getStatus() == DownloadStatus.PAUSED || getMetadata().getStatus() == DownloadStatus.PAUSED) {
             getMetadata().setStatus(DownloadStatus.STOPPED);
         }
     }
 
+    /**
+     * Returns the filename of the download file.
+     * @return Returns the filename of the download file.
+     */
     public String getFilename() {
         return getMetadata().getFilename();
     }
 
+    /**
+     * Checks if download is complete
+     * @return If download has completed
+     */
     public boolean isComplete() {
         return ((getMetadata().getCompletedBytes() + getMetadata().getPart().getStartByte()) == getMetadata().getPart().getEndByte());
     }
 
+    /**
+     * Sets up the connection to the download file.
+     * @return A stream object that represents the connection to the download file.
+     * @throws IOException
+     */
     private BufferedInputStream getConnectionStream() throws IOException {
         //Setting up the connection.
         URLConnection connection = getMetadata().downloadMetadata.getUrl().openConnection();
@@ -100,6 +126,13 @@ public class DownloadPart implements Runnable {
         return inputStream;
     }
 
+    /**
+     * Copies content from one stream to the other.
+     * @param inputStream The stream from which to copy
+     * @param fileStream The stream to which to copy
+     * @return If copy was sucessful returns true. If stop or pause command was issued returns false.
+     * @throws IOException
+     */
     private boolean copyToStream(BufferedInputStream inputStream, BufferedOutputStream fileStream) throws IOException {
         int byt;
         long completedBytes = getMetadata().getCompletedBytes();
@@ -127,7 +160,12 @@ public class DownloadPart implements Runnable {
 
     }
 
-    public void download() throws IOException, SocketTimeoutException {
+    /**
+     * Start the download of the file.
+     * @throws IOException
+     * @throws SocketTimeoutException
+     */
+    private void download() throws IOException, SocketTimeoutException {
         getMetadata().setStatus(DownloadStatus.DOWNLOADING);
         boolean append = (getMetadata().getCompletedBytes() != 0);
 
@@ -144,6 +182,9 @@ public class DownloadPart implements Runnable {
 
     }
 
+    /**
+     * Starts the download of a file. Also handles all the exceptions gracefully.
+     */
     public void safeDownload() {
         try {
             download();
@@ -154,6 +195,11 @@ public class DownloadPart implements Runnable {
         }
     }
 
+    /**
+     * Since the class implements runnable, this method is run when run as a thread.
+     * When a thread is started it starts the download and waits for commands from the thread.
+     * If download is complete or gets completed. it stops and waits for thread to join.
+     */
     @Override
     public void run() {
         if (DownloadStatus.COMPLETED == getMetadata().getStatus()) {

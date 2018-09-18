@@ -30,7 +30,7 @@ package com.downloadmanager;
  */
 
 /**
- *
+ * This represents the various states the download can be in.
  * @author gnik
  */
 public enum DownloadStatus{

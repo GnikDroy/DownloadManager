@@ -25,7 +25,8 @@ package com.downloadmanager;
 
 
 /**
- *
+ * This object represents a part of download file.
+ * It contains a startByte and endByte.
  * @author gnik
  */
 public class Part{

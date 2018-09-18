@@ -26,7 +26,9 @@ package com.downloadmanager;
 import java.util.List;
 
 /**
- *
+ * This object represents the state of a download.
+ * All downloads are serialized to the disk at the end of program execution.
+ * Therefore, at the end a list of DownloadState objects is serialized to disk.
  * @author gnik
  */
 public class DownloadState {

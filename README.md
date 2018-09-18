@@ -33,10 +33,10 @@ Execute the jar file by the following command
 
 `java -jar downloadmanager-0.1.0.jar`
 
-# Run without Building
+# Run after building
 
 __Linux/Windows/Mac__
 
-There is a built .jar file inside the `builds/lib` folder. 
+A built .jar file will be inside the `build/libs` folder. 
 To run the program simply execute `java -jar downloadmanager-0.1.0.jar` in the terminal or command prompt. 
 Java must be installed and in your path for this to work.

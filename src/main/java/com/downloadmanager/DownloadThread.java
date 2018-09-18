@@ -29,7 +29,8 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 
 /**
- *
+ * This objects represents a thread of a download.
+ * It includes the download object and queues to communicate with the thread.
  * @author gnik
  */
 public class DownloadThread {
