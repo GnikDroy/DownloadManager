@@ -10,7 +10,7 @@ DownloadManager fully supports pause/resume of downloads. Similarly, the downloa
 The main GUI is made by the JavaFX framework in the Observer/Observable model for easy extension.
 
 
-![DownloadManager](https://raw.githubusercontent.com/GnikDroy/DownloadManager/master/screenshots/screenshot.png)
+![DownloadManager](https://raw.githubusercontent.com/GnikDroy/DownloadManager/screenshots/screenshots/screenshot.png)
 
 
 # Building with gradle
