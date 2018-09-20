@@ -1,0 +1,7 @@
+*.class
+**/.idea/
+**/.idea/**
+**/history.dat
+.gradle/
+build/
+
