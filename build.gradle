@@ -13,6 +13,8 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile 'com.thoughtworks.xstream:xstream:1.4.8'
+    testCompile 'org.xmlunit:xmlunit-core:2.6.2'
+    testCompile 'org.xmlunit:xmlunit-matchers:2.6.2'
 }
 
 jar {
