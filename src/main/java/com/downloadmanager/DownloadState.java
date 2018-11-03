@@ -42,5 +42,5 @@ public class DownloadState {
         this.downloadPartMetadata = downloadPartMetadata;
     }
 
-        
+
 }

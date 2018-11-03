@@ -1,0 +1,172 @@
+<list>
+    <com.downloadmanager.DownloadState>
+        <downloadMetadata>
+            <url>
+                <value class="url">http://example.org/0.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </url>
+            <downloadID>
+                <value class="int">0</value>
+                <valid>true</valid>
+                <name/>
+            </downloadID>
+            <filename>
+                <value class="string">0_0.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </filename>
+            <size>
+                <valid>true</valid>
+                <name/>
+            </size>
+            <accelerated>
+                <value class="boolean">false</value>
+                <valid>true</valid>
+                <name/>
+            </accelerated>
+            <status>
+                <value class="com.downloadmanager.DownloadStatus">NEW</value>
+                <valid>true</valid>
+                <name/>
+            </status>
+        </downloadMetadata>
+        <downloadPartMetadata/>
+    </com.downloadmanager.DownloadState>
+    <com.downloadmanager.DownloadState>
+        <downloadMetadata>
+            <url>
+                <value class="url">http://example.org/1.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </url>
+            <downloadID>
+                <value class="int">1</value>
+                <valid>true</valid>
+                <name/>
+            </downloadID>
+            <filename>
+                <value class="string">1_1.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </filename>
+            <size>
+                <valid>true</valid>
+                <name/>
+            </size>
+            <accelerated>
+                <value class="boolean">false</value>
+                <valid>true</valid>
+                <name/>
+            </accelerated>
+            <status>
+                <value class="com.downloadmanager.DownloadStatus">NEW</value>
+                <valid>true</valid>
+                <name/>
+            </status>
+        </downloadMetadata>
+        <downloadPartMetadata/>
+    </com.downloadmanager.DownloadState>
+    <com.downloadmanager.DownloadState>
+        <downloadMetadata>
+            <url>
+                <value class="url">http://example.org/2.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </url>
+            <downloadID>
+                <value class="int">2</value>
+                <valid>true</valid>
+                <name/>
+            </downloadID>
+            <filename>
+                <value class="string">2_2.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </filename>
+            <size>
+                <valid>true</valid>
+                <name/>
+            </size>
+            <accelerated>
+                <value class="boolean">false</value>
+                <valid>true</valid>
+                <name/>
+            </accelerated>
+            <status>
+                <value class="com.downloadmanager.DownloadStatus">NEW</value>
+                <valid>true</valid>
+                <name/>
+            </status>
+        </downloadMetadata>
+        <downloadPartMetadata/>
+    </com.downloadmanager.DownloadState>
+    <com.downloadmanager.DownloadState>
+        <downloadMetadata>
+            <url>
+                <value class="url">http://example.org/3.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </url>
+            <downloadID>
+                <value class="int">3</value>
+                <valid>true</valid>
+                <name/>
+            </downloadID>
+            <filename>
+                <value class="string">3_3.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </filename>
+            <size>
+                <valid>true</valid>
+                <name/>
+            </size>
+            <accelerated>
+                <value class="boolean">false</value>
+                <valid>true</valid>
+                <name/>
+            </accelerated>
+            <status>
+                <value class="com.downloadmanager.DownloadStatus">NEW</value>
+                <valid>true</valid>
+                <name/>
+            </status>
+        </downloadMetadata>
+        <downloadPartMetadata/>
+    </com.downloadmanager.DownloadState>
+    <com.downloadmanager.DownloadState>
+        <downloadMetadata>
+            <url>
+                <value class="url">http://example.org/4.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </url>
+            <downloadID>
+                <value class="int">4</value>
+                <valid>true</valid>
+                <name/>
+            </downloadID>
+            <filename>
+                <value class="string">4_4.pdf</value>
+                <valid>true</valid>
+                <name/>
+            </filename>
+            <size>
+                <valid>true</valid>
+                <name/>
+            </size>
+            <accelerated>
+                <value class="boolean">false</value>
+                <valid>true</valid>
+                <name/>
+            </accelerated>
+            <status>
+                <value class="com.downloadmanager.DownloadStatus">NEW</value>
+                <valid>true</valid>
+                <name/>
+            </status>
+        </downloadMetadata>
+        <downloadPartMetadata/>
+    </com.downloadmanager.DownloadState>
+</list>
